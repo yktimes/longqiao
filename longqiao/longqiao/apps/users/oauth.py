@@ -119,10 +119,10 @@ class Spider:
         data = self.__get_login_data(uid, password,codes)
         if self.__real_base_url != 'http://61.178.64.20:80/':
             request = self.session.post(self.__base_url + 'default2.aspx', headers=self.__headers, data=data)
-            print("login1")
+
         else:
             request = self.session.post(self.__real_base_url + 'index.aspx', headers=self.__headers, data=data)
-            print("login2")
+
         soup = BeautifulSoup(request.text, 'html.parser')
         if request.status_code != requests.codes.ok:
             print('4XX or 5XX Error,try to login again')
@@ -153,7 +153,7 @@ class Spider:
 
         """
         http://jw.lzlqc.com/xsgrxx.aspx?xh=20160741140&xm=%D1%EE%BF%AD&gnmkdm=N121501
-http://jw.lzlqc.com/xsgrxx.aspx?xh=20160741112&xm=%C0%E8%B3%BF%BB%D4&gnmkdm=N121501
+
         :return:
         """
 
@@ -166,7 +166,7 @@ http://jw.lzlqc.com/xsgrxx.aspx?xh=20160741112&xm=%C0%E8%B3%BF%BB%D4&gnmkdm=N121
         request = self.session.get(self.__base_url + 'xsgrxx.aspx', params=data, headers=self.__headers)
         self.__headers['Referer'] = request.url
         soup = BeautifulSoup(request.text, 'html.parser')
-        print(soup)
+
         try:
             StudentID = soup.find('span', id='xh').string  # 学号
             name = soup.find('span', id='xm').string  # 姓名
@@ -210,7 +210,7 @@ http://jw.lzlqc.com/xsgrxx.aspx?xh=20160741112&xm=%C0%E8%B3%BF%BB%D4&gnmkdm=N121
         soup = BeautifulSoup(request.text, 'lxml')
         # self.__set__VIEWSTATE(soup)
         print("课程：            ")
-        print(soup)
+
 
         # 获取课表，kburl是课表页面url,为什么有个Referer参数,这个参数代表你是从哪里来的。就是登录后的主界面参数。这个一定要有。
 
