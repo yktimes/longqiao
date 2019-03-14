@@ -1,13 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-import random
+
 # Create your models here.
 class User(AbstractUser):
     """用户模型类"""
 
     StudentID = models.BigIntegerField(verbose_name='学号',primary_key=True)
-    nickname = models.CharField(max_length=60,verbose_name='昵称',default='陇桥%05d'%(random.randint(0, 99999)),db_index=True)
+    nickname = models.CharField(max_length=60,verbose_name='昵称',db_index=True)
     gender = models.CharField(max_length=10,verbose_name='性别')
     enrollmentDate = models.CharField(max_length=30,verbose_name='入学日期')
     birthday = models.CharField(max_length=30,verbose_name='出生日期')
