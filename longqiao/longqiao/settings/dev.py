@@ -216,3 +216,11 @@ JWT_AUTH = {
 }
 
 AUTH_USER_MODEL = 'users.User'
+
+
+# django文件存储
+DEFAULT_FILE_STORAGE = 'longqiao.utils.fastdfs.fdfs_storage.FastDFSStorage'
+
+# FastDFS
+# FDFS_URL = 'http://image.meiduo.site:8888/'
+FDFS_CLIENT_CONF = os.path.join(BASE_DIR, 'utils/fastdfs/client.conf')
