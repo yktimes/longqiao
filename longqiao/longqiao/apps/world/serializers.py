@@ -1,8 +1,7 @@
 from rest_framework import serializers
-from .models import ConfessionImages,ConfessionWall
+from .models import ConfessionImages, ConfessionWall
 from users.serializers import UserSerializer
 import re
-
 
 
 # class ConfessionWallSerializer(serializers.Serializer):
@@ -14,18 +13,18 @@ import re
 
 class ConfessionImagesSerializer(serializers.ModelSerializer):
     """
-    创建表白墙序列化器
+    表白墙照片序列化器
     """
 
     # img_conn = ConfessionWallSerializer()
 
     class Meta:
         model = ConfessionImages
-        fields = ('ImagesUrl','img_conn')
+        fields = ('ImagesUrl', 'img_conn')
 
     def create(self, validated_data):
         """
-        创建表白墙
+        创建表白墙照片
         """
         print(validated_data)
 
@@ -33,34 +32,33 @@ class ConfessionImagesSerializer(serializers.ModelSerializer):
 
         return img
 
+
 class ConfessionWallSerializer(serializers.ModelSerializer):
     """
-    创建表白墙序列化器
+    表白墙序列化器
     """
     Cuser = UserSerializer()
     # confessionimages_set = serializers.PrimaryKeyRelatedField(read_only=True,many=True)  # 新增
-    confessionimages_set = serializers.SlugRelatedField(read_only=True,slug_field='ImagesUrl',many=True)  # 新增
+    confessionimages_set = serializers.SlugRelatedField(read_only=True, slug_field='ImagesUrl', many=True)  # 新增
+
     # confessionimages_set = ConfessionImagesSerializer()
     class Meta:
         model = ConfessionWall
-        fields = ('id','content','is_anonymity','create_time','confessionimages_set','Cuser')
+        fields = ('id', 'content', 'is_anonymity', 'create_time', 'confessionimages_set', 'Cuser')
 
         extra_kwargs = {
             'is_anonymity': {'required': False},
-             'id':{'read_only':True}
+            'id': {'read_only': True}
         }
 
 
 class CreateConfessionWallSerializer(serializers.ModelSerializer):
-
-
     class Meta:
         model = ConfessionWall
         fields = ('content', 'is_anonymity', 'Cuser')
 
-
         extra_kwargs = {
-            'is_anonymity': {'required': False},
+            'is_anonymity': {'required': False,},
 
         }
 
@@ -72,9 +70,7 @@ class CreateConfessionWallSerializer(serializers.ModelSerializer):
 
         wall = super().create(validated_data)
 
-
         return wall
-
 
 # class CreateConfessionWallSerializer(serializers.Serializer):
 #     id = serializers.IntegerField(label='ID',read_only=True)
