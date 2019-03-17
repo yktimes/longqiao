@@ -34,6 +34,18 @@ class ConfessionWall(models.Model):
         verbose_name_plural = verbose_name
         ordering=['-create_time'] # 按创建时间倒序
 
+#
+# class ConfessionImages(models.Model):
+#
+#     """
+#     表白墙的照片
+#     """
+#
+#     images = models.FileField(upload_to = "wall_imgs/",verbose_name="照片")
+#
+#     img_conn = models.ForeignKey(to="ConfessionWall", to_field="id")
+
+
 
 class ConfessionImages(models.Model):
 
@@ -41,6 +53,6 @@ class ConfessionImages(models.Model):
     表白墙的照片
     """
 
-    images = models.FileField(upload_to = "wall_imgs/",verbose_name="照片")
+    ImagesUrl = models.CharField(max_length=200,verbose_name="照片url")
 
     img_conn = models.ForeignKey(to="ConfessionWall", to_field="id")
