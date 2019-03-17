@@ -207,6 +207,9 @@ REST_FRAMEWORK = {
             'rest_framework.authentication.SessionAuthentication',
             'rest_framework.authentication.BasicAuthentication',
         ),
+
+    # 分页
+    'DEFAULT_PAGINATION_CLASS': 'longqiao.utils.pagination.StandardResultPagination',
 }
 
 # 指明token的有效期
