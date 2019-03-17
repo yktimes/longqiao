@@ -56,3 +56,10 @@ class ConfessionImages(models.Model):
     ImagesUrl = models.CharField(max_length=200,verbose_name="照片url")
 
     img_conn = models.ForeignKey(to="ConfessionWall", to_field="id")
+
+    def __str__(self):
+        return self.ImagesUrl
+
+    class Meta:
+        verbose_name = "表白墙照片"
+        verbose_name_plural = verbose_name
