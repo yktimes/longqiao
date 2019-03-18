@@ -1,5 +1,5 @@
 
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import RetrieveAPIView,UpdateAPIView
 from rest_framework.views import APIView
 from django.shortcuts import HttpResponse,redirect,render
 from django.contrib.auth import authenticate
@@ -7,31 +7,14 @@ from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_jwt.settings import api_settings
+from rest_framework.permissions import IsAuthenticated
 
 from . import constants
 from .oauth import Spider
 from .models import User
-
+from . import serializers
 
 import random
-
-
-
-# class ImageCodeView(APIView):
-#     """
-#     图片验证码
-#
-#     """
-#
-#     def get(self,request):
-#         try:
-#             image = Spider(constants.OAUTH_URL)
-#             data = image.get_code()
-#         except Exception:
-#             return Response({"message": "获取验证码异常"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-#         else:
-#             return Response(data=data,content_type='image/jpg')
-
 
 
 class Yz(APIView):
@@ -169,3 +152,43 @@ class UserView(APIView):
 
             else:
                 return Response({"message": "学号或密码错误"},status=status.HTTP_400_BAD_REQUEST)
+
+
+# url(r'^user/$', views.UserDetailView.as_view()), # 用户个人信息
+class UserDetailView(RetrieveAPIView):
+    """
+    用户详情
+    """
+    serializer_class = serializers.UserDetailSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+# class UserUpdatelView(APIView):
+#     # serializer_class = serializers.UserUpdateSerializer
+#     permission_classes = [IsAuthenticated]
+#
+#     def get_object(self):
+#         return self.request.user
+#
+#     def post(self,request):
+#
+#         user = serializers.UserUpdateSerializer(data=request.data)
+#         if user.is_valid():
+#             user.save()
+#             return Response({'message':'ok','user':user},status=status.HTTP_200_OK)
+#         else:
+#             return Response({'message':'error'},status=status.HTTP_400_BAD_REQUEST)
+
+# url(r'^info/$', views.UserUpdatelView.as_view()), # 修改用户个人信息
+class UserUpdatelView(UpdateAPIView):
+    """
+    修改个人信息
+    """
+    serializer_class = serializers.UserUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+

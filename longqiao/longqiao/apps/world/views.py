@@ -104,7 +104,7 @@ class DelWallView(APIView):
     permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
     # delete/walls/<pk>/
-    def get(self, request, pk):
+    def post(self, request, pk):
         """
         处理删除
         """
