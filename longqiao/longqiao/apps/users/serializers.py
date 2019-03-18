@@ -81,3 +81,39 @@ class UserSerializer(serializers.ModelSerializer):
     #     user.save()
     #
     #     return user
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    """
+    用户详细信息序列化器
+    """
+    class Meta:
+        model = User
+        fields = ('StudentID', 'nickname','gender','department', 'email', 'sclass','mobile')
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    """
+    用户修改信息序列化器
+    """
+    class Meta:
+        model = User
+        fields = ('nickname', 'email', 'mobile')
+
+    def validate_mobile(self, value):
+        """验证手机号"""
+        if not re.match(r'^1[3-9]\d{9}$', value):
+            raise serializers.ValidationError('手机号格式错误')
+
+        # 手机号是否重复
+        count = User.objects.filter(mobile=value).count()
+        if count > 0:
+            raise serializers.ValidationError('手机号已存在')
+
+        return value
+
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+
+        return user
