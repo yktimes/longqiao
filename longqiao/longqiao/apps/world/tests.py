@@ -1,6 +1,11 @@
 from django.test import TestCase
 
 # Create your tests here.
-s = "IMG_0028.jpg"
+# from django_redis import get_redis_connection
+# from longqiao.apps.users.models import User
+import os
+import sys
 
-print(s.split(".")[-1])
+print('19961108'[4:])
+    #
+

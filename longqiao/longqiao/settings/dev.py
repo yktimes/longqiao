@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'users.apps.UsersConfig',
     'world.apps.WorldConfig',
+
+    'debug_toolbar', # 性能排查,只能在开发和测试下用
 ]
 
 MIDDLEWARE = [
@@ -57,7 +59,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware', # 性能排查
 ]
+
+INTERNAL_IPS= [ '127.0.0.1']
+DEBUG_TOOLBAR_CONFIG={
+    'JQUERY_URL':'https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js'
+}
 
 ROOT_URLCONF = 'longqiao.urls'
 
@@ -101,18 +109,43 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://47.94.253.97:6379/0",
+        "LOCATION": "redis://127.0.0.1:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
     "session": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://47.94.253.97:6379/1",
+        "LOCATION": "redis://127.0.0.1:6379/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
-    }
+    },
+
+    "userInfo": {
+                "BACKEND": "django_redis.cache.RedisCache",
+                "LOCATION": "redis://127.0.0.1:6379/3",
+                "OPTIONS": {
+                    "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                }
+            },
+
+    "courses": {
+                    "BACKEND": "django_redis.cache.RedisCache",
+                    "LOCATION": "redis://127.0.0.1:6379/4",
+                    "OPTIONS": {
+                        "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                    }
+                },
+
+    "userBirthday": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/5",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
@@ -197,7 +230,7 @@ LOGGING = {
 
 STATIC_URL = '/static/'
 
-
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 REST_FRAMEWORK = {
     # 异常处理
     'EXCEPTION_HANDLER': 'longqiao.utils.exceptions.exception_handler',

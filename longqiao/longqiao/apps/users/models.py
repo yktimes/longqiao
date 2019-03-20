@@ -11,6 +11,8 @@ class User(AbstractUser):
     gender = models.CharField(max_length=10,verbose_name='性别')
     enrollmentDate = models.CharField(max_length=30,verbose_name='入学日期')
     birthday = models.CharField(max_length=30,verbose_name='出生日期')
+
+    realBirthday = models.CharField(max_length=20, verbose_name='生日',db_index=True)
     department= models.CharField(max_length=30,verbose_name='系别')
     sclass = models.CharField(max_length=50,verbose_name='班级')
     classes = models.CharField(max_length=20,verbose_name='级别')

@@ -16,10 +16,27 @@ Including another URLconf
 from django.conf.urls import url,include
 from django.contrib import admin
 from rest_framework.documentation import include_docs_urls
+from django.conf import settings
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include('users.urls')),
     url(r'^', include('world.urls')),
-    url(r'^docs/', include_docs_urls(title='My API title'))
+    url(r'^docs/', include_docs_urls(title='My API title')),
+
+
+
 ]
+
+
+
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+
+          # For django versions before 2.0:
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+
+    ] + urlpatterns

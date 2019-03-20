@@ -91,7 +91,6 @@ class CreateWallView(APIView):
         return Response({"message": "ok"}, status=status.HTTP_200_OK)
 
 
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 
 
 class DelWallView(APIView):
