@@ -3,6 +3,9 @@ import requests
 from bs4 import BeautifulSoup
 from . import constants
 
+from celery_tasks.course import tasks as course_tasks
+from django_redis import get_redis_connection
+
 class Spider:
 
     def __init__(self, url):
@@ -30,6 +33,7 @@ class Spider:
         self.session = requests.Session()
         self.__now_lessons_number = 0
 
+        self.real_class=None # 班级
 
     def __set_real_url(self):
         '''
@@ -176,6 +180,9 @@ class Spider:
             department = soup.find('span', id='lbl_xy').string # 系别
             sclass = soup.find('span', id='lbl_xzb').string  # 班级
             classes = soup.find('span', id='lbl_dqszj').string  # 级别
+
+
+            self.real_class = sclass
             print("""
                             学号： {0}
                             姓名： {1}
@@ -192,7 +199,7 @@ class Spider:
         else:
             return StudentID,name,gender,enrollmentDate,birthday,department,sclass,classes
 
-    def __get__lessons(self):
+    def get__lessons(self):
         """
         获取课表
         http://jw.lzlqc.com/tjkbcx.aspx?xh=20160741140&xm=%D1%EE%BF%AD&gnmkdm=N121613
@@ -207,17 +214,21 @@ class Spider:
         self.__headers['Referer'] = self.__base_url + 'xs_main.aspx?xh=' + self.__uid
         request = self.session.get(self.__base_url + 'tjkbcx.aspx', params=data, headers=self.__headers)
         self.__headers['Referer'] = request.url
-        soup = BeautifulSoup(request.text, 'lxml')
-        # self.__set__VIEWSTATE(soup)
-        print("课程：            ")
+        # soup = BeautifulSoup(request.text, 'html.parser')
+        # # self.__set__VIEWSTATE(soup)
+        # print("课程：            ")
+        #
+        #
+        # # 获取课表，kburl是课表页面url,为什么有个Referer参数,这个参数代表你是从哪里来的。就是登录后的主界面参数。这个一定要有。
+        #
+        # content = soup.find('table',id='Table6')
+        #
+        # banji =) soup.select('option[selected="selected"]')[-1].string
+        # print(banji
 
 
-        # 获取课表，kburl是课表页面url,为什么有个Referer参数,这个参数代表你是从哪里来的。就是登录后的主界面参数。这个一定要有。
 
-        content = soup.find('table',id='Table6')
-        print(content)
-
-
+        course_tasks.getCourse.delay(request.text)
 
     def __set__VIEWSTATE(self, soup):
         __VIEWSTATE_tag = soup.find('input', attrs={'name': '__VIEWSTATE'})

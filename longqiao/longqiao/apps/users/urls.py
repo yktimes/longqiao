@@ -8,6 +8,12 @@ urlpatterns = [
     url(r'^user/$', views.UserDetailView.as_view()), # 用户个人信息
 
     url(r'^info/$', views.UserUpdatelView.as_view()), # 修改用户个人信息
+
+    url(r'^longtime/$', views.UserHowLongView.as_view()), # 获取用户在校多长时间
+
+    url(r'^lessons/$', views.LessonsView.as_view()), # 获取课程
+
+    url(r'^relessons/$', views.RefreshLessonsView.as_view()), # 获取课程
     # url(r'image_codes/$',views.ImageCodeView.as_view()),
     url(r'yz/$',views.Yz.as_view()),
 
