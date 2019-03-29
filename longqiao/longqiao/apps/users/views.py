@@ -57,28 +57,10 @@ class UserView(APIView):
 
         # 如果用户已经验证过,则不必再去请求教务系统,直接登陆成功
         try:
-            user = User.objects.get(StudentID=StudentID)
+            user = authenticate(username=StudentID, password=password)
 
-            if user.check_password(password):
-                print("sasdsd")
-                # 补充生成记录登录状态的token
-                # jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-                # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-                # payload = jwt_payload_handler(user)
-                # token = jwt_encode_handler(payload)
-                # user.token = token
-
-                # redis_conn = get_redis_connection("userBirthday")
-                #
-                # StudentID=request.user.StudentID
-                #
-                # name = request.user.username
-                # gender = request.user.gender
-                # birthday = request.user.birthday[:]
-                # department = request.user.department
-                #
-
-                # redis_conn.hmest()
+            if user is not None:
+                print(user)
 
                 # 调用　手动签发JWT的函数
                 user = make_token(user)
@@ -132,7 +114,6 @@ class UserView(APIView):
                 # token = jwt_encode_handler(payload)
                 # user.token = token
                 #
-                # user.save()
 
                 user = make_token(user)
 
@@ -208,6 +189,9 @@ class UserHowLongView(APIView):
 
 # url(r'^lessons/$', views.LessonsView.as_view()), # 获取课程
 class LessonsView(APIView):
+    """
+    获取课程
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -226,7 +210,11 @@ class LessonsView(APIView):
             return Response({'message': '获取课程失败'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
+#     url(r'^relessons/$', views.RefreshLessonsView.as_view()), # 获取课程
 class RefreshLessonsView(APIView):
+    """
+    刷新课程
+    """
 
     permission_classes = [IsAuthenticated]
 
@@ -251,7 +239,6 @@ class RefreshLessonsView(APIView):
         # 如果用户要求的字段没有填写完整,则不让进行下一段验证
         if not all([StudentID, password, code]):
             return Response({"message": "数据不完整"}, status=status.HTTP_400_BAD_REQUEST)
-
 
         try:
             # 判断
@@ -282,5 +269,4 @@ class RefreshLessonsView(APIView):
                     print("用到新的缓存了")
                     return Response({'message': 'ok', 'lesson': lesson}, status=status.HTTP_200_OK)
 
-                return Response({"message": "ok",})
-
+                return Response({"message": "ok", })

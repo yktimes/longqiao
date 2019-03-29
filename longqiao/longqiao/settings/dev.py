@@ -59,13 +59,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware', # 性能排查
+    'debug_toolbar.middleware.DebugToolbarMiddleware', # 性能排查,生产环境下去掉
 ]
 
+# 性能排查,生产环境下去掉
 INTERNAL_IPS= [ '127.0.0.1']
 DEBUG_TOOLBAR_CONFIG={
     'JQUERY_URL':'https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js'
 }
+
 
 ROOT_URLCONF = 'longqiao.urls'
 
@@ -138,17 +140,15 @@ CACHES = {
                     }
                 },
 
-    "userBirthday": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/5",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    },
 
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
+
+
+AUTHENTICATION_BACKENDS = [
+    'users.utils.UsernameMobileAuthBackend',
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -244,6 +244,8 @@ REST_FRAMEWORK = {
 
     # 分页
     'DEFAULT_PAGINATION_CLASS': 'longqiao.utils.pagination.StandardResultPagination',
+
+
 }
 
 # 指明token的有效期

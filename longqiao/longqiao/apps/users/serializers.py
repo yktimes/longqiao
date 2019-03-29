@@ -113,7 +113,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         return value
 
 
-    def create(self, validated_data):
-        user = super().create(validated_data)
-
-        return user
+    # def create(self, validated_data):
+    #     user = super().create(validated_data)
+    #
+    #     return user
