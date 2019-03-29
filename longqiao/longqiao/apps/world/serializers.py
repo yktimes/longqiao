@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ConfessionImages, ConfessionWall
+from .models import ConfessionImages, ConfessionWall,WallComment
 from users.serializers import UserSerializer
 import re
 
@@ -22,15 +22,15 @@ class ConfessionImagesSerializer(serializers.ModelSerializer):
         model = ConfessionImages
         fields = ('ImagesUrl', 'img_conn')
 
-    def create(self, validated_data):
-        """
-        创建表白墙照片
-        """
-        print(validated_data)
-
-        img = super().create(validated_data)
-
-        return img
+    # def create(self, validated_data):
+    #     """
+    #     创建表白墙照片
+    #     """
+    #     print(validated_data)
+    #
+    #     img = super().create(validated_data)
+    #
+    #     return img
 
 
 class ConfessionWallSerializer(serializers.ModelSerializer):
@@ -62,15 +62,15 @@ class CreateConfessionWallSerializer(serializers.ModelSerializer):
 
         }
 
-    def create(self, validated_data):
-        """
-        创建表白墙
-        """
-        print(validated_data)
-
-        wall = super().create(validated_data)
-
-        return wall
+    # def create(self, validated_data):
+    #     """
+    #     创建表白墙
+    #     """
+    #     print(validated_data)
+    #
+    #     wall = super().create(validated_data)
+    #
+    #     return wall
 
 # class CreateConfessionWallSerializer(serializers.Serializer):
 #     id = serializers.IntegerField(label='ID',read_only=True)
@@ -102,3 +102,21 @@ class CreateConfessionWallSerializer(serializers.ModelSerializer):
 #
 #
 #         return wall
+
+# 创建表白墙评论　序列化器
+class CreateWallCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WallComment
+        fields = ('wall', 'author_id', 'content','parent_id')
+
+        extra_kwargs = {
+            'parent_id': {'required': False,},
+        }
+
+    def validate_content(self, value):
+        """评论内容，不能为空"""
+        if not value.strip():
+            raise serializers.ValidationError('评论不能为空')
+
+
+        return value

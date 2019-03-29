@@ -57,7 +57,7 @@ class UserView(APIView):
 
         # 如果用户已经验证过,则不必再去请求教务系统,直接登陆成功
         try:
-            user = authenticate(username=StudentID,password=password)
+            user = authenticate(username=StudentID, password=password)
 
             if user is not None:
                 print(user)
@@ -114,7 +114,6 @@ class UserView(APIView):
                 # token = jwt_encode_handler(payload)
                 # user.token = token
                 #
-                # user.save()
 
                 user = make_token(user)
 

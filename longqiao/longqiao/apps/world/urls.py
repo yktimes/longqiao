@@ -11,5 +11,13 @@ urlpatterns = [
 
 
 
+    url(r'^wallcomment/$', views.CreateWallCommentView.as_view()), # 创建评论
+
+    url(r'^wallcomments/$', views.WallCommentListView.as_view()), # 得到评论
+
+
+
+
+
 ]
 

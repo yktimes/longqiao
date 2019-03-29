@@ -4,12 +4,12 @@ from django.core.files.uploadedfile import UploadedFile
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import CreateAPIView
 
 from rest_framework.generics import DestroyAPIView
 from rest_framework import status
 from rest_framework.mixins import DestroyModelMixin
-from .models import ConfessionWall, ConfessionImages
+from .models import ConfessionWall, ConfessionImages,WallComment
 from . import constants
 from . import serializers
 from rest_framework.permissions import IsAuthenticated
@@ -20,7 +20,7 @@ from fdfs_client.client import Fdfs_client
 # url(r'^walls/$', views.BookListView.as_view()),
 class WallListView(ListAPIView):
     serializer_class = serializers.ConfessionWallSerializer
-    permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+    #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
     def get_queryset(self):
         return ConfessionWall.objects.filter(is_delete=False)
@@ -37,8 +37,8 @@ from rest_framework.parsers import MultiPartParser, FileUploadParser, JSONParser
 #     def get(self,request):
 #         return render(request, 'love.html')
 
-# 　使用 fastdfs
-client = Fdfs_client('longqiao/utils/fastdfs/client.conf')
+# 　使用 fastdfs  # 文件配置地址
+client = Fdfs_client(constants.FDFS)
 
 
 # url(r'^loves/$', views.CreateWallView.as_view()),
@@ -46,7 +46,7 @@ class CreateWallView(APIView):
     """
     新建表白墙
     """
-    permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+    #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
     def get(self, request):
 
@@ -119,18 +119,62 @@ class DelWallView(APIView):
             return Response({'message': 'delete error'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+#  url(r'^wallcomment/$', views.CreateWallCommentView.as_view()), # 创建评论
+class CreateWallCommentView(CreateAPIView):
 
-# class WallListView(APIView):
-#     def get(self, request):
-#         wall = ConfessionWall.objects.all()
+    #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+
+    serializer_class = serializers.CreateWallCommentSerializer
+
+    # def post(self,request):
+    #     wall = request.POST.get("wall")
+    #
+    #     author_id = request.POST.get("author_id")
+    #
+    #     content = request.POST.get("content")
+    #
+    #     parent_id
+
+
+
+
+class WallCommentListView(APIView):
+
+    def get(self,request):
+        comment_list = WallComment.objects.filter(wall_id=1).values('nid',
+                                                                    'wall_id',
+                                                                    "author_id_id",
+                                                                    "author_id__nickname",
+                                                                    "content",
+                                                                    "create_time",
+                                                                    "parent_id_id",
+
+
+                                                                    )
+        ret = []  # 最终拿到的数据
+        comment_list_dict = {}  # 构建的中间字典
+        for row in comment_list:  # 通过查到的数据中的id作为key，每一行数据作为value生成一个字典
+            row.update({"children": []})  # 构建一个键children对应一个空列表
+            comment_list_dict[row["nid"]] = row  # 将id作为键，当前行作为值存到该字典中
+
+        for item in comment_list:  # 遍历一遍取到的数据列表
+            parrent_row = comment_list_dict.get(item["parent_id_id"])  # 拿到当前行对应的父亲的地址
+            if not parrent_row:  # 如果父亲是None，则直接进入ret中
+                ret.append(item)
+            else:  # 否则，将这行append到父亲的children中
+                parrent_row["children"].append(item)  # 重点在这一行，用到了上面提到的第一个知识点
+        print(ret)
+
+        return Response({'comment':ret})
 #
+#         # 先获取一级评论
+#         data = WallComment.objects.filter(parent=None).order_by('create_time')
+#         # 再添加子孙到一级评论的 descendants 属性上
+#         # for item in data['items']:
+#         #     comment = WallComment.objects.get(item['nid'])
+#         #     descendants = [child.to_dict() for child in comment.get_descendants()]
+#         #     # 按 timestamp 排序一个字典列表
+#         #     from operator import itemgetter
+#         #     item['descendants'] = sorted(descendants, key=itemgetter('create_time'))
 #
-#         ids = []
-#         for i in wall:
-#             ids.append(i.pk)
-#         serializer = serializers.ConfessionWallSerializer(wall, many=True)
-#
-#         s = ConfessionImages.objects.filter(img_conn__in=ids)
-#
-#         # print(s.images)
-#         return Response(serializer.data)
+#         return Response({'data':data})
