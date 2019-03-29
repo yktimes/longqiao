@@ -1,6 +1,15 @@
 from rest_framework import serializers
-from .models import ConfessionImages, ConfessionWall,WallComment
+from .models import ConfessionImages
+from .models import  ConfessionWall
+from .models import  WallComment
+
+
+from .models import WorldImages
+from .models import WorldCircle
+
+
 from users.serializers import UserSerializer
+
 import re
 
 
@@ -120,3 +129,53 @@ class CreateWallCommentSerializer(serializers.ModelSerializer):
 
 
         return value
+
+
+
+
+class WorldImagesSerializer(serializers.ModelSerializer):
+    """
+    世界圈照片序列化器
+    """
+
+    # img_conn = ConfessionWallSerializer()
+
+    class Meta:
+        model = WorldImages
+        fields = ('ImagesUrl', 'img_conn')
+
+    # def create(self, validated_data):
+    #     """
+    #     创建表白墙照片
+    #     """
+    #     print(validated_data)
+    #
+    #     img = super().create(validated_data)
+    #
+    #     return img
+
+
+class WorldSerializer(serializers.ModelSerializer):
+    """
+    世界圈展示序列化器
+    """
+    Cuser = UserSerializer()
+    # worldimages_set = serializers.PrimaryKeyRelatedField(read_only=True,many=True)  # 新增
+    worldimages_set = serializers.SlugRelatedField(read_only=True, slug_field='ImagesUrl', many=True)  # 新增
+
+    # worldimages_set = ConfessionImagesSerializer()
+
+    class Meta:
+        model = WorldCircle
+        fields = ('id', 'content',  'create_time', 'worldimages_set', 'Cuser','comment_count','up_count')
+
+        extra_kwargs = {
+
+            'id': {'read_only': True}
+        }
+
+
+class CreateWorldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorldCircle
+        fields = ('content',  'Cuser')
