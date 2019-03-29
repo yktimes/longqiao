@@ -48,7 +48,7 @@ INSTALLED_APPS = [
 
     'users.apps.UsersConfig',
     'world.apps.WorldConfig',
-    'circle.apps.CircleConfig',
+
 
     'debug_toolbar', # 性能排查,只能在开发和测试下用
 ]

@@ -1,0 +1,12 @@
+
+１　文件系统配置
+StorageIP="http://47.94.253.97:8888/"
+# 文件配置地址　在上线环境中改为上线的
+FDFS = '/home/python/longqiao/longqiao/longqiao/utils/fastdfs/client.conf'
+
+
+
+２　前段创建动态(表白或校园动态)
+前段必须发送类型ｔｙｐｅ
+LOVEWALL = "1"
+WORLDCIRCLE = "2"

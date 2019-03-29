@@ -18,10 +18,10 @@ class ConfessionWall(models.Model):
     is_delete=models.BooleanField(default=False,verbose_name='删除标记') # 逻辑删除
 
 
-    # # 评论数
-    # comment_count = models.IntegerField(verbose_name="评论数", default=0)
-    # # 点赞数
-    # up_count = models.IntegerField(verbose_name="点赞数", default=0)
+    # 评论数
+    comment_count = models.IntegerField(verbose_name="评论数", default=0)
+    # 点赞数
+    up_count = models.IntegerField(verbose_name="点赞数", default=0)
 
 
 
@@ -125,4 +125,60 @@ class WallComment(models.Model):
 
     class Meta:
         verbose_name = "表白墙评论"
+        verbose_name_plural = verbose_name
+
+
+
+
+class WorldCircle(models.Model):
+    """
+    世界圈
+    """
+
+    content = models.CharField(max_length=500,verbose_name='动态内容') # 动态内容
+
+    Cuser=models.ForeignKey('users.User',to_field="StudentID") # 关联用户
+
+    create_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
+
+
+
+    is_delete=models.BooleanField(default=False,verbose_name='删除标记') # 逻辑删除
+
+
+    # 评论数
+    comment_count = models.IntegerField(verbose_name="评论数", default=0)
+    # 点赞数
+    up_count = models.IntegerField(verbose_name="点赞数", default=0)
+
+
+
+    def __str__(self):
+        return self.content
+
+
+    class Meta:
+        verbose_name = "世界圈"
+        verbose_name_plural = verbose_name
+        ordering=['-create_time'] # 按创建时间倒序
+
+
+
+
+
+class WorldImages(models.Model):
+
+    """
+    世界圈照片
+    """
+
+    ImagesUrl = models.CharField(max_length=200,verbose_name="照片url")
+
+    img_conn = models.ForeignKey(to="WorldCircle", to_field="id")
+
+    def __str__(self):
+        return self.ImagesUrl
+
+    class Meta:
+        verbose_name = "世界圈照片"
         verbose_name_plural = verbose_name
