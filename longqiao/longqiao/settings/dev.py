@@ -45,8 +45,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+
     'users.apps.UsersConfig',
     'world.apps.WorldConfig',
+    'circle.apps.CircleConfig',
 
     'debug_toolbar', # 性能排查,只能在开发和测试下用
 ]
