@@ -32,8 +32,22 @@ class WallListView(ListAPIView):
     serializer_class = serializers.ConfessionWallSerializer
     #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
+
     def get_queryset(self):
-        return ConfessionWall.objects.filter(is_delete=False)
+
+        res = ConfessionWall.objects.filter(is_delete=False).select_related('Cuser')
+
+        return res
+    # def get(self,request):
+    #     from django.db.models import F
+    #     res =  ConfessionWall.objects.filter(is_delete=False).select_related("Cuser",'confessionimages')
+    #     print(res)
+    #     s = serializers.ConfessionWallSerializer(res)
+    #     print(s.data)
+    #     return Response({'data':1})
+
+    # def get_object(self):
+    #     return ConfessionWall.objects.filter(is_delete=False).select_related("Cuser",'confessionimages').values("Cuser",'confessionimages')
 
 
 from rest_framework.parsers import MultiPartParser, FileUploadParser, JSONParser
@@ -102,6 +116,7 @@ class CreateWallCommentView(CreateAPIView):
 
 class WallCommentListView(APIView):
 
+
     def get(self,request):
         comment_list = WallComment.objects.filter(wall_id=1).values('nid',
                                                                     'wall_id',
@@ -143,10 +158,11 @@ class WallCommentListView(APIView):
 
 class WorldListView(ListAPIView):
     serializer_class = serializers.WorldSerializer
+
     #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
     def get_queryset(self):
-        return WorldCircle.objects.filter(is_delete=False)
+        return WorldCircle.objects.filter(is_delete=False).select_related("Cuser")
 
 
 
