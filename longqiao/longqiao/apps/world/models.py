@@ -10,7 +10,7 @@ class ConfessionWall(models.Model):
 
     content = models.CharField(max_length=255,verbose_name='表白内容') # 表白内容
 
-    Cuser=models.ForeignKey('users.User',to_field="StudentID") # 关联用户
+    Cuser=models.ForeignKey('users.User',to_field="id") # 关联用户
 
     create_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     is_anonymity = models.BooleanField(default=False,verbose_name='是否匿名') #是否匿名,默认不匿名
@@ -74,7 +74,7 @@ class WallComment(models.Model):
     wall = models.ForeignKey(to="ConfessionWall", to_field="id")
 
     # 外键，评论作者的 学号
-    author_id = models.ForeignKey(to='users.User',to_field="StudentID")
+    author_id = models.ForeignKey(to='users.User',to_field="id")
 
     content = models.CharField(max_length=255)  # 评论内容
 
@@ -137,7 +137,7 @@ class WorldCircle(models.Model):
 
     content = models.CharField(max_length=500,verbose_name='动态内容') # 动态内容
 
-    Cuser=models.ForeignKey('users.User',to_field="StudentID") # 关联用户
+    Cuser=models.ForeignKey('users.User',to_field="id") # 关联用户
 
     create_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
 

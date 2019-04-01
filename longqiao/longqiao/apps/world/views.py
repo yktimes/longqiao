@@ -180,7 +180,7 @@ class CreateWorldView(APIView):
 
     def post(self, request):
 
-        type = request.POST.get("type")
+        type = request.data.get("type")
         try:
             # 先接受下是否有图片,图片可以有多个
             images = request.data.getlist("images")
