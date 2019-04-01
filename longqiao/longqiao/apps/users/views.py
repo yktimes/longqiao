@@ -19,6 +19,10 @@ from . import serializers
 from .utils import make_token
 from .utils import howLongDays
 
+from fdfs_client.client import Fdfs_client
+
+client = Fdfs_client(constants.FDFS)
+
 
 class Yz(APIView):
     def get(self, request):
@@ -47,10 +51,14 @@ class UserView(APIView):
 
     def post(self, request):
 
-        StudentID = request.POST.get('StudentID', '')
-        password = request.POST.get('password', '')
-        code = request.POST.get('code', '')
 
+        print("有人请求了")
+        print(request.body)
+        # b'name=20160741112&pwd=lch121922028&captcha=16gh'
+        StudentID = request.data.get('name', '')
+        password = request.data.get('pwd', '')
+        code = request.data.get('captcha', '')
+        print(StudentID,password,code)
         # 如果用户要求的字段没有填写完整,则不让进行下一段验证
         if not all([StudentID, password, code]):
             return Response({"message": "数据不完整"}, status=status.HTTP_400_BAD_REQUEST)
@@ -85,51 +93,61 @@ class UserView(APIView):
                 return Response({"message": "服务器异常"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
             if flag:
-                # try:
+                try:
 
-                StudentID, name, gender, enrollmentDate, birthday, department, sclass, classes = self.s.get_info()
+                    StudentID, name, gender, enrollmentDate, birthday, department, sclass, classes = self.s.get_info()
 
-                nickname = '陇桥%05d' % (random.randint(0, 99999))
+                    nickname = '陇桥%05d' % (random.randint(0, 99999))
 
-                # 创建用户
-                user = User.objects.create_user(
-                    StudentID=StudentID,
-                    password=password,
-                    username=name,
-                    gender=gender,
-                    nickname=nickname,
-                    enrollmentDate=enrollmentDate,
-                    birthday=birthday,
-                    realBirthday=birthday[4:],
-                    department=department,
-                    sclass=sclass,
-                    classes=classes,
-                    is_active=True
-                )
+                    # 创建用户
+                    user = User.objects.create_user(
+                        StudentID=StudentID,
+                        password=password,
+                        username=name,
+                        gender=gender,
+                        nickname=nickname,
+                        enrollmentDate=enrollmentDate,
+                        birthday=birthday,
+                        realBirthday=birthday[4:],
+                        department=department,
+                        sclass=sclass,
+                        classes=classes,
+                    )
 
-                # 补充生成记录登录状态的token
-                # jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-                # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-                # payload = jwt_payload_handler(user)
-                # token = jwt_encode_handler(payload)
-                # user.token = token
-                #
+                    # 补充生成记录登录状态的token
+                    # jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+                    # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+                    # payload = jwt_payload_handler(user)
+                    # token = jwt_encode_handler(payload)
+                    # user.token = token
+                    #
 
-                user = make_token(user)
+                    user = make_token(user)
 
-                redis_conn = get_redis_connection('courses')
+                    data ={
+                        "StudentID":StudentID,
+                        "username":user.username,
+                        "nickname":nickname,
+                        "department":department,
+                        "sclass":sclass,
+                        "classes":classes,
+                        "avatar":user.avatar
 
-                if not redis_conn.get(sclass):  # 如果缓存没有该课程，就去请求课程
+                    }
+                    redis_conn = get_redis_connection('courses')
 
-                    print("我去请求课程了")
-                    self.s.get__lessons()  #
+                    if not redis_conn.get(sclass):  # 如果缓存没有该课程，就去请求课程
 
-                return Response({"message": "ok", 'token': user.token})
-            #     except:
-            #         return Response({"message": "获取个人信息和创建异常"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-            #
-            # else:
-            #     return Response({"message": "学号或密码错误"}, status=status.HTTP_400_BAD_REQUEST)
+                        print("我去请求课程了")
+                        self.s.get__lessons()  #
+
+
+                    return Response({"message": "ok", 'token': user.token,'data':data},status=status.HTTP_200_OK)
+                except:
+                    return Response({"message": "获取个人信息和创建异常"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+            else:
+                return Response({"message": "学号或密码错误"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # url(r'^user/$', views.UserDetailView.as_view()), # 用户个人信息
@@ -232,9 +250,9 @@ class RefreshLessonsView(APIView):
 
     def post(self, request):
 
-        StudentID = request.POST.get('StudentID', '')
-        password = request.POST.get('password', '')
-        code = request.POST.get('code', '')
+        StudentID = request.data.get('StudentID', '')
+        password = request.data.get('password', '')
+        code = request.data.get('code', '')
 
         # 如果用户要求的字段没有填写完整,则不让进行下一段验证
         if not all([StudentID, password, code]):
@@ -270,3 +288,31 @@ class RefreshLessonsView(APIView):
                     return Response({'message': 'ok', 'lesson': lesson}, status=status.HTTP_200_OK)
 
                 return Response({"message": "ok", })
+
+
+# url(r'^avatar/$', views.AvatarView.as_view()), # 修改头像
+class AvatarView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    """
+    修改头像
+    """
+
+    def post(self, request):
+        user = request.user
+        avatar = request.data.get("avatar")
+        if avatar:
+            try:
+                ret = client.upload_by_buffer(avatar.read(), file_ext_name=avatar.name.split(".")[-1])
+                if ret["Status"] == "Upload successed.":
+                    url = constants.StorageIP + ret["Remote file_id"]
+
+                    User.objects.filter(pk=user).update(avatar=url)
+
+                    return Response({'message': "ok", 'avatar': url})
+
+            except:
+                return Response({'message': "上传失败"})
+
+        else:
+            return Response({'message': "error"}, status=status.HTTP_400_BAD_REQUEST)

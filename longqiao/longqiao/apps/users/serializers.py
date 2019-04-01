@@ -89,7 +89,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ('StudentID', 'nickname','gender','department', 'email', 'sclass','mobile')
+        fields = ('StudentID', 'nickname','avatar','gender','department', 'email', 'sclass','mobile')
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):

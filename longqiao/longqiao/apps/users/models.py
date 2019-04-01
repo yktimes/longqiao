@@ -5,8 +5,10 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 class User(AbstractUser):
     """用户模型类"""
+    StudentID = models.BigIntegerField(verbose_name='学号',unique=True)
 
-    StudentID = models.BigIntegerField(verbose_name='学号',primary_key=True)
+    avatar =   models.CharField(max_length=200, verbose_name="用户头像",default="http://47.94.253.97:8888/group1/M00/00/00/rBGjLFyhvy2Aaue5AAAOobGPP50788.jpg")
+
     nickname = models.CharField(max_length=60,verbose_name='昵称',db_index=True)
     gender = models.CharField(max_length=10,verbose_name='性别')
     enrollmentDate = models.CharField(max_length=30,verbose_name='入学日期')

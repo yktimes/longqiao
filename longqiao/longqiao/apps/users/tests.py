@@ -5,13 +5,14 @@ django.setup()
 from users.models import User
 # from django.contrib.auth.models import User
 # Create your tests here.
-
+from users import constants
 if __name__ == '__main__':
 
+    from fdfs_client.client import Fdfs_client
 
-
-
-
+    client = Fdfs_client(constants.FDFS)
+    ret = client.upload_by_filename('/home/python/Desktop/timg.jpg')
+    print(ret)
     #
     # import random
     # gen = ['男','女']
