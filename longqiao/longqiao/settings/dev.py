@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 
     'users.apps.UsersConfig',
     'world.apps.WorldConfig',
+    'post.apps.PostConfig',
 
     'corsheaders',
     'debug_toolbar', # 性能排查,只能在开发和测试下用

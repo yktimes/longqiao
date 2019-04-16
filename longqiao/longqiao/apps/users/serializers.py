@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('StudentID', 'nickname','department')
+        fields = ('id','StudentID', 'nickname','department')
 
     # def validate_mobile(self, value):
     #     """验证手机号"""
@@ -89,7 +89,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ('StudentID', 'nickname','avatar','gender','department', 'email', 'sclass','mobile')
+        fields = ('id','StudentID', 'nickname','avatar','gender','department', 'email', 'sclass','mobile')
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
