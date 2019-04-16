@@ -12,11 +12,30 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import PostListSerializer
 from . serializers import CreatePostSerializer
 
+from rest_framework.filters import OrderingFilter
+
+from .models import Post
 # Create your views here.
 
 class PostListView(ListAPIView):
-    pass
+    serializer_class = PostListSerializer
 
+    # filter_backends = (OrderingFilter,)
+    # ordering_fields = ('category')
+
+    def get_queryset(self):
+
+
+        return Post.all_posts()
+
+    def filter_queryset(self, queryset):
+
+        category_id = self.request.query_params.get("category")
+        if category_id:
+
+            return Post.objects.filter(category_id=category_id, status=Post.STATUS_NORMAL).select_related("owner",'category')
+
+        return queryset
 
 class PostCreateView(CreateAPIView):
 
