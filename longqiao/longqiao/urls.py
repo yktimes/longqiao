@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include('users.urls')),
     url(r'^', include('world.urls')),
+    url(r'^', include('post.urls')),
 
     url(r'^docs/', include_docs_urls(title='My API title')),
 

@@ -20,6 +20,10 @@ class User(AbstractUser):
     classes = models.CharField(max_length=20,verbose_name='级别')
     mobile = models.CharField(max_length=11, null=True, verbose_name='手机号')
 
+
+    def __str__(self):
+        return self.nickname
+
     class Meta:
         db_table = 'tb_users'
         verbose_name = '用户'

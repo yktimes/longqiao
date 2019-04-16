@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.cache import cache
 
 # Create your models here.
 
@@ -16,10 +16,11 @@ class Category(models.Model):
     CATEGORY_COMPETITION = 2
     CATEGORY_LOSTANDFOUND = 3
     CATEGORY_SecondhandMarket = 4
-    CATEGORY_CARPOOLING = 5
-    CATEGORY_GAME = 6
-    CATEGORY_SHITS = 7
-    CATEGORY_DATA = 8
+    CATEGORY_DATA = 5
+    CATEGORY_CARPOOLING = 6
+    CATEGORY_GAME = 7
+    CATEGORY_SHITS = 8
+
 
 
     CATEGORY_NAME =(
@@ -36,13 +37,13 @@ class Category(models.Model):
 
 
     status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS, verbose_name="状态")
-    name = models.PositiveIntegerField(default=CATEGORY_NORMAL, choices=CATEGORY_NAME, verbose_name="分类名称")
+    name = models.IntegerField(default=CATEGORY_NORMAL, choices=CATEGORY_NAME, verbose_name="分类名称")
 
     class Meta:
         verbose_name = verbose_name_plural = '分类'
 
     def __str__(self):
-        return self.name
+        return self.get_name_display()
 
 
 class Post(models.Model):
@@ -56,7 +57,7 @@ class Post(models.Model):
     )
 
     title = models.CharField(max_length=255, verbose_name="标题")
-
+    desc = models.CharField(max_length=255,verbose_name='摘要')
     content = models.TextField(verbose_name="正文")
 
     status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS, verbose_name="状态")
@@ -66,9 +67,30 @@ class Post(models.Model):
     owner = models.ForeignKey('users.User', verbose_name="作者", on_delete=models.DO_NOTHING)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
 
+    # 评论数
+    comment_count = models.IntegerField(verbose_name="评论数", default=0)
+    # 点赞数
+    up_count = models.IntegerField(verbose_name="点赞数", default=0)
+
     class Meta:
         verbose_name = verbose_name_plural = "文章"
         ordering = ['-created_time']
 
     def __str__(self):
         return self.title
+
+    @classmethod
+    def all_posts(cls):
+        result = cache.get('all_posts')
+        if not result:
+            result = cls.objects.filter(status=Post.STATUS_NORMAL).select_related("owner",'category')
+            cache.set('all_posts', result, 60)
+        return result
+
+    # @classmethod
+    # def category_posts(cls):
+    #     result = cache.get('all_posts')
+    #     if  result:
+    #         result = result.
+    #         cache.set('all_posts', result, 60)
+    #     return result

@@ -146,14 +146,14 @@ CORS_ALLOW_HEADERS = (
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/0",
+        "LOCATION": "redis://192.168.72.138:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
     "session": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": "redis://192.168.72.138:6379/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -161,7 +161,7 @@ CACHES = {
 
     "userInfo": {
                 "BACKEND": "django_redis.cache.RedisCache",
-                "LOCATION": "redis://127.0.0.1:6379/3",
+                "LOCATION": "redis://192.168.72.138:6379/3",
                 "OPTIONS": {
                     "CLIENT_CLASS": "django_redis.client.DefaultClient",
                 }
@@ -169,7 +169,7 @@ CACHES = {
 
     "courses": {
                     "BACKEND": "django_redis.cache.RedisCache",
-                    "LOCATION": "redis://127.0.0.1:6379/4",
+                    "LOCATION": "redis://192.168.72.138:6379/4",
                     "OPTIONS": {
                         "CLIENT_CLASS": "django_redis.client.DefaultClient",
                     }
