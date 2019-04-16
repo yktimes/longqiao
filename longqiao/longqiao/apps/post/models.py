@@ -16,10 +16,11 @@ class Category(models.Model):
     CATEGORY_COMPETITION = 2
     CATEGORY_LOSTANDFOUND = 3
     CATEGORY_SecondhandMarket = 4
-    CATEGORY_CARPOOLING = 5
-    CATEGORY_GAME = 6
-    CATEGORY_SHITS = 7
-    CATEGORY_DATA = 8
+    CATEGORY_DATA = 5
+    CATEGORY_CARPOOLING = 6
+    CATEGORY_GAME = 7
+    CATEGORY_SHITS = 8
+
 
 
     CATEGORY_NAME =(
@@ -36,13 +37,13 @@ class Category(models.Model):
 
 
     status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS, verbose_name="状态")
-    name = models.PositiveIntegerField(default=CATEGORY_NORMAL, choices=CATEGORY_NAME, verbose_name="分类名称")
+    name = models.IntegerField(default=CATEGORY_NORMAL, choices=CATEGORY_NAME, verbose_name="分类名称")
 
     class Meta:
         verbose_name = verbose_name_plural = '分类'
 
     def __str__(self):
-        return self.name
+        return self.get_name_display()
 
 
 class Post(models.Model):
