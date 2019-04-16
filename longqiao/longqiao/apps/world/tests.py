@@ -100,20 +100,30 @@ if __name__ == '__main__':
     #
     # comments()
 
-    res = ConfessionWall.objects.filter(is_delete=False).values("id","content",'Cuser_id','Cuser__nickname')
-
-    ret=[]
-
-    wall_list_dict = {}  # 构建的中间字典
-    for row in res:
-        row.update({"images":[]})
-        s= ConfessionImages.objects.filter(img_conn=row["id"]).values("ImagesUrl")
-        for i in s:
-            row['images'].append(i['ImagesUrl'])
-    print(res)
+    # res = ConfessionWall.objects.filter(is_delete=False).values("id","content",'Cuser_id','Cuser__nickname')
+    #
+    # ret=[]
+    #
+    # wall_list_dict = {}  # 构建的中间字典
+    # for row in res:
+    #     row.update({"images":[]})
+    #     s= ConfessionImages.objects.filter(img_conn=row["id"]).values("ImagesUrl")
+    #     for i in s:
+    #         row['images'].append(i['ImagesUrl'])
+    # print(res)
     # print(p)
 # from django.core.paginator import Paginator
 # objects = ['john','paul','george','ringo','lucy','meiry','checy','wind','flow','rain']
 # p = Paginator(objects,3)  # 3条数据为一页，实例化分页对象
 # s = p.page(3)
 # print(s.object_list)
+
+    from django.db.models import Value
+
+    # res = ConfessionImages.objects.annotate(s='img_conn__pk').select_related('img_conn','img_conn__Cuser').values('id',"ImagesUrl","img_conn__content","img_conn__create_time","img_conn__comment_count",'img_conn__up_count','img_conn__Cuser').values("")
+
+    res = ConfessionImages.objects.select_related('img_conn', 'img_conn__Cuser').annotate()
+    print(res)
+
+
+

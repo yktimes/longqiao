@@ -29,13 +29,15 @@ client = Fdfs_client(constants.FDFS)
 
 # url(r'^walls/$', views.BookListView.as_view()),
 class WallListView(ListAPIView):
-    serializer_class = serializers.ConfessionWallSerializer
+    # serializer_class = serializers.ConfessionWallSerializer
+    serializer_class = serializers.ImagesSerializer
     #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
 
     def get_queryset(self):
-
-        res = ConfessionWall.objects.filter(is_delete=False).select_related('Cuser')
+        from django.db.models import Value
+        # res = ConfessionWall.objects.filter(is_delete=False).select_related('Cuser')`world_confessionwall`.`id
+        res = ConfessionImages.objects.select_related('img_conn','img_conn__Cuser')
 
         return res
     # def get(self,request):
@@ -193,13 +195,14 @@ class CreateWorldView(APIView):
             # # 如果是表白墙类型
             if type==constants.LOVEWALL:
                 world = serializers.CreateConfessionWallSerializer(data=request.data)
-
+            print(world,"sssssssssssss")
 
             if world.is_valid():  # 如果验证通过
                 world_circle = world.save()  # 保存
                 id = world_circle.pk  # 取到id
-
             else:
+                print(world.errors)
+
                 return Response({'message': "参数出错,无法创建"}, status=status.HTTP_400_BAD_REQUEST)
 
             if images:  # 如果有图片
