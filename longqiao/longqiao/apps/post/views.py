@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .serializers import PostListSerializer
 from . serializers import CreatePostSerializer
+from . serializers import  POSTIndexSerializer
 
 from rest_framework.filters import OrderingFilter
 
@@ -40,3 +41,15 @@ class PostListView(ListAPIView):
 class PostCreateView(CreateAPIView):
 
     serializer_class = CreatePostSerializer
+
+
+
+from drf_haystack.viewsets import HaystackViewSet
+
+class POSTSearchViewSet(HaystackViewSet):
+    """
+    POST搜索
+    """
+    index_models = [Post]
+
+    serializer_class = POSTIndexSerializer

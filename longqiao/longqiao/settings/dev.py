@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'post.apps.PostConfig',
 
     'corsheaders',
+
+    'haystack',
     'debug_toolbar', # 性能排查,只能在开发和测试下用
 ]
 
@@ -78,7 +80,8 @@ ROOT_URLCONF = 'longqiao.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS':[os.path.join(BASE_DIR, 'templates')],
+
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -296,5 +299,19 @@ AUTH_USER_MODEL = 'users.User'
 DEFAULT_FILE_STORAGE = 'longqiao.utils.fastdfs.fdfs_storage.FastDFSStorage'
 
 # FastDFS
-# FDFS_URL = 'http://image.meiduo.site:8888/'
+# FDFS_URL = 'http://image.yk.site:8888/'
 FDFS_CLIENT_CONF = os.path.join(BASE_DIR, 'utils/fastdfs/client.conf')
+
+
+
+# Haystack
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'URL': 'http://47.94.253.97:9200/',  # 此处为elasticsearch运行的服务器ip地址，端口号固定为9200
+        'INDEX_NAME': 'school',  # 指定elasticsearch建立的索引库的名称
+    },
+}
+
+# 当添加、修改、删除数据时，自动生成索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
