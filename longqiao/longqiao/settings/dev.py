@@ -38,6 +38,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -53,8 +54,15 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'haystack',
+    'django_crontab',  # 定时任务
+
+
+
     'debug_toolbar', # 性能排查,只能在开发和测试下用
 ]
+
+# 解决crontab中文问题
+CRONTAB_COMMAND_PREFIX = 'LANG_ALL=zh_cn.UTF-8'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -315,3 +323,11 @@ HAYSTACK_CONNECTIONS = {
 
 # 当添加、修改、删除数据时，自动生成索引
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+
+
+# 定时任务
+CRONJOBS = [
+    # 每1分钟执行一次
+    ('*/1 * * * *', 'world.crons.make_birthdays', '>> /home/python/Desktop/crontab.log')
+]
