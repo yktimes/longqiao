@@ -54,6 +54,7 @@ class ConfessionWallSerializer(serializers.ModelSerializer):
     # confessionimages_set = serializers.SlugRelatedField(read_only=True, slug_field='ImagesUrl', many=True)  # 新增
     # confessionimages_set = serializers.IntegerField()
     # confessionimages_set = ConfessionImagesSerializer()
+    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
 
     class Meta:
         model = ConfessionWall
@@ -181,6 +182,7 @@ class WorldSerializer(serializers.ModelSerializer):
     worldimages_set = serializers.SlugRelatedField(read_only=True, slug_field='ImagesUrl', many=True)  # 新增
 
     # worldimages_set = ConfessionImagesSerializer()
+    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
 
     class Meta:
         model = WorldCircle

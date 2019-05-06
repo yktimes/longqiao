@@ -12,13 +12,16 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import PostListSerializer
 from . serializers import CreatePostSerializer
 from . serializers import  POSTIndexSerializer
-
+from . serializers import  PostDetailSerializer
 from rest_framework.filters import OrderingFilter
 
 from .models import Post
 # Create your views here.
 
 class PostListView(ListAPIView):
+    """
+    帖子首页展示
+    """
     serializer_class = PostListSerializer
 
     # filter_backends = (OrderingFilter,)
@@ -38,10 +41,24 @@ class PostListView(ListAPIView):
 
         return queryset
 
+from rest_framework.generics import RetrieveAPIView
 class PostCreateView(CreateAPIView):
+    """
+    创建帖子
+    """
 
     serializer_class = CreatePostSerializer
 
+# class BookDetailView(RetrieveModelMixin, GenericAPIView):
+#     queryset = BookInfo.objects.all()
+#     serializer_class = BookInfoSerializer
+#
+#     def get(self, request, pk):
+#         return self.retrieve(request)
+
+class PostViewSet(RetrieveAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostDetailSerializer
 
 
 from drf_haystack.viewsets import HaystackViewSet

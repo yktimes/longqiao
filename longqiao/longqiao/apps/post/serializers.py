@@ -2,21 +2,32 @@ from rest_framework import serializers
 
 from .models import Post, Category
 
+from users.serializers import UserSerializer
 
-# from users.serializers import UserSerializer
 
 
 class PostListSerializer(serializers.ModelSerializer):
     """
     贴吧展示
     """
-
-    owner = serializers.StringRelatedField(label='昵称')
-
+    url = serializers.HyperlinkedIdentityField(view_name='api:post-detail')
+    # owner = serializers.StringRelatedField(label='昵称')
+    owner = UserSerializer()
+    created_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
 
     class Meta:
         model = Post
-        fields = ('owner','title', 'desc', 'category', 'created_time', 'comment_count', 'up_count')
+        fields = ('url','owner', 'title', 'desc', 'category', 'created_time', 'comment_count', 'up_count')
+
+
+class PostDetailSerializer(serializers.ModelSerializer):
+    """
+    帖子详情展示
+    """
+
+    class Meta:
+        model = Post
+        fields = ('id','owner', 'title', 'content', 'category', 'created_time', 'comment_count', 'up_count')
 
 
 class CreatePostSerializer(serializers.ModelSerializer):
@@ -54,14 +65,13 @@ class CreatePostSerializer(serializers.ModelSerializer):
         post.desc = desc[:36] + "..."
         post.save()
 
-
-
         return post
 
 
 from drf_haystack.serializers import HaystackSerializer
 
-from . search_indexes import Postindex
+from .search_indexes import Postindex
+
 
 class POSTIndexSerializer(HaystackSerializer):
     """
@@ -71,4 +81,4 @@ class POSTIndexSerializer(HaystackSerializer):
 
     class Meta:
         index_classes = [Postindex]
-        fields = ('text',object)
+        fields = ('text', object)
