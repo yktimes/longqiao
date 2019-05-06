@@ -14,7 +14,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id','StudentID', 'nickname','department')
+        fields = ('id','StudentID', 'nickname','department','avatar')
+
+        read_only_fields = ('avatar',)
 
     # def validate_mobile(self, value):
     #     """验证手机号"""
@@ -117,3 +119,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     #     user = super().create(validated_data)
     #
     #     return user
+
+class PostUserSerializer(serializers.ModelSerializer):
+    """
+    用户加图像序列化器
+    """
+
+
+    class Meta:
+        model = User
+        fields = ('id','StudentID', 'nickname','department','avatar')

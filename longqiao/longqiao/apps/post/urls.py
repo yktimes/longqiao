@@ -13,8 +13,9 @@ urlpatterns = [
 
 
 
-    url(r'^posts/$', views.PostListView.as_view()), #
-    url(r'^post/$', views.PostCreateView.as_view()), #
+    url(r'^posts/$', views.PostListView.as_view(),name='post-list'), # 展示贴子
+    url(r'^post/$', views.PostCreateView.as_view(),name='post-create'), #　创建帖子
+    url(r'^postr/(?P<pk>[0-9]+)/$', views.PostViewSet.as_view(),name='post-detail'), #　详情帖子
 
 
 
