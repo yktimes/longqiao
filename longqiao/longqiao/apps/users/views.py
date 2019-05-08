@@ -73,8 +73,19 @@ class UserView(APIView):
                 # 调用　手动签发JWT的函数
                 user = make_token(user)
 
-                return Response({"message": "已经验证过的身份", 'token': user.token, '学号': user.StudentID},
-                                status=status.HTTP_200_OK)
+                data = {
+                    "StudentID": user.StudentID,
+                    "username": user.username,
+                    "nickname": user.nickname,
+                    "department": user.department,
+                    "sclass": user.sclass,
+                    "classes": user.classes,
+                    "avatar": user.avatar,
+                    "token":user.token
+                }
+
+                return Response({"message": "ok",  'results': data}, status=status.HTTP_200_OK)
+
         except User.DoesNotExist:
             pass  # 用户还没有验证
 
@@ -131,8 +142,8 @@ class UserView(APIView):
                         "department":department,
                         "sclass":sclass,
                         "classes":classes,
-                        "avatar":user.avatar
-
+                        "avatar":user.avatar,
+                        "token": user.token
                     }
                     redis_conn = get_redis_connection('courses')
 
@@ -142,7 +153,7 @@ class UserView(APIView):
                         self.s.get__lessons()  #
 
 
-                    return Response({"message": "ok", 'token': user.token,'data':data},status=status.HTTP_200_OK)
+                    return Response({"message": "ok", 'results':data},status=status.HTTP_200_OK)
                 except:
                     return Response({"message": "获取个人信息和创建异常"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
@@ -316,3 +327,87 @@ class AvatarView(APIView):
 
         else:
             return Response({'message': "error"}, status=status.HTTP_400_BAD_REQUEST)
+
+class UnFollowView(APIView):
+    """
+    取消关注
+    """
+
+
+    def post(self, request):
+        print("***************")
+        to_user = request.data.get('to_user')
+
+        user = request.user
+
+        try:
+            to_use = User.objects.get(pk=to_user)
+            User.unfollow(user, to_use)
+
+
+        except:
+            return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            return Response({'message': 'ok'}, status=status.HTTP_200_OK)
+
+
+class FollowView(APIView):
+    """
+    关注
+    """
+    def post(self,request):
+        to_user = request.data.get('to_user')
+
+        user = request.user
+
+        print(user,to_user)
+
+        try:
+            to_use = User.objects.get(pk=to_user)
+            User.follow(user,to_use)
+
+
+        except:
+            return Response({'message':'error'},status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            return Response({'message': 'ok'}, status=status.HTTP_200_OK)
+
+
+
+
+class FollowerView(APIView):
+    """
+    关注的人
+    """
+
+
+    def get(self,request):
+        user_list=[]
+        user = request.user
+
+        followed_list = User.user_followed(user)
+        for user in followed_list:
+            user_list.append({'user':user.nickname,'avatar':user.avatar})
+
+        print(user_list)
+
+        return Response({"message":"ok",'data':user_list},status=status.HTTP_200_OK)
+
+class FollowedView(APIView):
+    """
+    关注我的人
+    """
+
+    def get(self, request):
+        user_list = []
+        user = request.user
+
+        followed_list = User.user_follower(user)
+        for user in followed_list:
+            user_list.append({'user': user.nickname, 'avatar': user.avatar})
+
+        print(user_list)
+
+        return Response({"message": "ok", 'data': user_list}, status=status.HTTP_200_OK)

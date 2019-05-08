@@ -8,6 +8,7 @@ from rest_framework.generics import DestroyAPIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
+from rest_framework.generics import RetrieveAPIView
 
 from .serializers import PostListSerializer
 from . serializers import CreatePostSerializer
@@ -41,7 +42,6 @@ class PostListView(ListAPIView):
 
         return queryset
 
-from rest_framework.generics import RetrieveAPIView
 class PostCreateView(CreateAPIView):
     """
     创建帖子
@@ -57,6 +57,9 @@ class PostCreateView(CreateAPIView):
 #         return self.retrieve(request)
 
 class PostViewSet(RetrieveAPIView):
+    """
+    帖子详情
+    """
     queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
 
