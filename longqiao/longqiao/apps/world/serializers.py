@@ -31,7 +31,10 @@ class ConfessionImagesSerializer(serializers.ModelSerializer):
         model = ConfessionImages
         fields = ('ImagesUrl', 'img_conn')
 
+class ConfessionDetailSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = ConfessionWall
 
     # def create(self, validated_data):
     #     """
@@ -48,17 +51,21 @@ class ConfessionWallSerializer(serializers.ModelSerializer):
     """
     表白墙序列化器
     """
+
+
+    url = serializers.HyperlinkedIdentityField(view_name='walls-detail')
+
     Cuser = UserSerializer()
     # confessionimages_set = serializers.PrimaryKeyRelatedField(read_only=True,many=True)  # 新增
     # confessionimages_set = serializers.PrimaryKeyRelatedField(read_only=True)
-    # confessionimages_set = serializers.SlugRelatedField(read_only=True, slug_field='ImagesUrl', many=True)  # 新增
+    confessionimages_set = serializers.SlugRelatedField(read_only=True, slug_field='ImagesUrl', many=True)  # 新增
     # confessionimages_set = serializers.IntegerField()
     # confessionimages_set = ConfessionImagesSerializer()
     create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
 
     class Meta:
         model = ConfessionWall
-        fields = ('id', 'content', 'is_anonymity', 'create_time',  'Cuser')
+        fields = ('url','id', 'content', 'is_anonymity', 'create_time',  'Cuser','confessionimages_set')
 
         extra_kwargs = {
             'is_anonymity': {'required': False},
@@ -72,7 +79,7 @@ class ImagesSerializer(serializers.ModelSerializer):
     表白墙照片序列化器
     """
 
-    img_conn = ConfessionWallSerializer()
+    # img_conn = ConfessionWallSerializer()
 
     class Meta:
         model = ConfessionImages
@@ -176,7 +183,11 @@ class WorldImagesSerializer(serializers.ModelSerializer):
 class WorldSerializer(serializers.ModelSerializer):
     """
     世界圈展示序列化器
+
+
     """
+    url = serializers.HyperlinkedIdentityField(view_name='world-detail')
+
     Cuser = UserSerializer()
     # worldimages_set = serializers.PrimaryKeyRelatedField(read_only=True,many=True)  # 新增
     worldimages_set = serializers.SlugRelatedField(read_only=True, slug_field='ImagesUrl', many=True)  # 新增
@@ -186,7 +197,7 @@ class WorldSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WorldCircle
-        fields = ('id', 'content',  'create_time', 'worldimages_set', 'Cuser','comment_count','up_count')
+        fields = ('url','id', 'content',  'create_time', 'worldimages_set', 'Cuser','comment_count','up_count')
 
         extra_kwargs = {
 

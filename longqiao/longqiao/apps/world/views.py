@@ -5,15 +5,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import CreateAPIView
-
+from rest_framework.generics import RetrieveAPIView
+from rest_framework import mixins
+from rest_framework.viewsets import GenericViewSet
 from rest_framework.generics import DestroyAPIView
 from rest_framework import status
 from rest_framework.mixins import DestroyModelMixin
+
 from .models import ConfessionImages
-from .models import  ConfessionWall
-from .models import  WallComment
-
-
+from .models import ConfessionWall
+from .models import WallComment
 from .models import WorldImages
 from .models import WorldCircle
 
@@ -21,25 +22,39 @@ from . import constants
 from . import serializers
 from rest_framework.permissions import IsAuthenticated
 
-
-
 from fdfs_client.client import Fdfs_client
 
 client = Fdfs_client(constants.FDFS)
 
-# url(r'^walls/$', views.BookListView.as_view()),
-class WallListView(ListAPIView):
-    # serializer_class = serializers.ConfessionWallSerializer
-    serializer_class = serializers.ImagesSerializer
-    #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
+# url(r'^walls/$', views.BookListView.as_view()),
+# class WallListView(ListAPIView):
+#     """
+#     表白墙展示
+#     """
+#     serializer_class = serializers.ConfessionWallSerializer
+#     # serializer_class = serializers.ImagesSerializer
+#
+#     # permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+#
+#     def get_queryset(self):
+#         from django.db.models import Value
+#         res = ConfessionWall.objects.filter(is_delete=False).select_related('Cuser')
+#         # res = ConfessionImages.objects.select_related('img_conn', 'img_conn__Cuser')
+#
+#         return res
+
+class WallListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+    """表白墙　使用GenericViewSet实现返回列表和单一值"""
+
+    # 指定序列化器
+    serializer_class = serializers.ConfessionWallSerializer
+    # 制定查询集
+    queryset = ConfessionWall.objects.all()
 
     def get_queryset(self):
-        from django.db.models import Value
-        # res = ConfessionWall.objects.filter(is_delete=False).select_related('Cuser')`world_confessionwall`.`id
-        res = ConfessionImages.objects.select_related('img_conn','img_conn__Cuser')
+        return ConfessionWall.objects.filter(is_delete=False).select_related("Cuser")
 
-        return res
     # def get(self,request):
     #     from django.db.models import F
     #     res =  ConfessionWall.objects.filter(is_delete=False).select_related("Cuser",'confessionimages')
@@ -54,6 +69,7 @@ class WallListView(ListAPIView):
 
 from rest_framework.parsers import MultiPartParser, FileUploadParser, JSONParser
 
+
 # url(r'^loves/$', views.CreateWallView.as_view()),
 
 # class CreateWallView(CreateAPIView):
@@ -64,15 +80,13 @@ from rest_framework.parsers import MultiPartParser, FileUploadParser, JSONParser
 #         return render(request, 'love.html')
 
 # 　使用 fastdfs  # 文件配置地址
-
-
-
-
-
+#
+# class ConfessionWallViewSet(RetrieveAPIView):
+#     queryset =ConfessionWall.objects.all()
+#     serializer_class =
 
 
 class DelWallView(APIView):
-
     """
     删除表白墙
     """
@@ -85,22 +99,27 @@ class DelWallView(APIView):
         """
         处理删除
         """
-        print(request.user) # 可以得到用户
+        print(request.user)  # 可以得到用户
         try:
             wall = ConfessionWall.objects.get(id=pk, is_delete=False)
+
             if wall:
-                # 进行逻辑删除
-                wall.is_delete = True
-                wall.save()
-                return Response({'message': 'delete ok'}, status=status.HTTP_204_NO_CONTENT)
+                # 如果删除用户是当前用户
+                if wall.Cuser == request.user:
+                    # 进行逻辑删除
+                    wall.is_delete = True
+                    wall.save()
+                    return Response({'message': 'delete ok'}, status=status.HTTP_204_NO_CONTENT)
         except ConfessionWall.DoesNotExist:
             return Response({'message': 'delete error'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 #  url(r'^wallcomment/$', views.CreateWallCommentView.as_view()), # 创建评论
 class CreateWallCommentView(CreateAPIView):
-
-    #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+    """
+    创建评论
+    """
+    # permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
     serializer_class = serializers.CreateWallCommentSerializer
 
@@ -114,12 +133,12 @@ class CreateWallCommentView(CreateAPIView):
     #     parent_id
 
 
-
-
 class WallCommentListView(APIView):
+    """
+    评论展示
+    """
 
-
-    def get(self,request):
+    def get(self, request):
         comment_list = WallComment.objects.filter(wall_id=1).values('nid',
                                                                     'wall_id',
                                                                     "author_id_id",
@@ -127,7 +146,6 @@ class WallCommentListView(APIView):
                                                                     "content",
                                                                     "create_time",
                                                                     "parent_id_id",
-
 
                                                                     )
         ret = []  # 最终拿到的数据
@@ -144,7 +162,9 @@ class WallCommentListView(APIView):
                 parrent_row["children"].append(item)  # 重点在这一行，用到了上面提到的第一个知识点
         print(ret)
 
-        return Response({'comment':ret})
+        return Response({'comment': ret})
+
+
 #
 #         # 先获取一级评论
 #         data = WallComment.objects.filter(parent=None).order_by('create_time')
@@ -158,14 +178,61 @@ class WallCommentListView(APIView):
 #
 #         return Response({'data':data})
 
-class WorldListView(ListAPIView):
-    serializer_class = serializers.WorldSerializer
+# class WorldListView(ListAPIView):
+#     """
+#     世界圈(朋友圈)展示
+#     """
+#     serializer_class = serializers.WorldSerializer
+#
+#     # permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+#
+#     def get_queryset(self):
+#         return WorldCircle.objects.filter(is_delete=False).select_related("Cuser")
 
-    #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+
+#
+# class WorldListView(APIView):
+#     def get(self,request):
+#         return  Response({'data':'1111'})
+
+class WorldListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+    """使用GenericViewSet实现返回列表和单一值"""
+
+    # 指定序列化器
+    serializer_class = serializers.WorldSerializer
+    # 制定查询集
+    queryset = WorldCircle.objects.all()
 
     def get_queryset(self):
         return WorldCircle.objects.filter(is_delete=False).select_related("Cuser")
 
+
+class DelWorldView(APIView):
+    """
+    删除动态
+    """
+
+    # authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+
+    # delete/world/<pk>/
+    def post(self, request, pk):
+        """
+        处理删除
+        """
+        print(request.user)  # 可以得到用户
+        try:
+            world = WorldCircle.objects.get(id=pk, is_delete=False)
+
+            if world:
+                # 如果删除用户是当前用户
+                if world.Cuser == request.user:
+                    # 进行逻辑删除
+                    world.is_delete = True
+                    world.save()
+                    return Response({'message': 'delete ok'}, status=status.HTTP_204_NO_CONTENT)
+        except WorldCircle.DoesNotExist:
+            return Response({'message': 'delete error'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # url(r'^circle/$', views.CreateWorldView.as_view()),  # 创建动态(表白墙或世界圈)
@@ -174,7 +241,8 @@ class CreateWorldView(APIView):
     """
     新建动态
     """
-    #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+
+    # permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
     def get(self, request):
 
@@ -188,14 +256,13 @@ class CreateWorldView(APIView):
             images = request.data.getlist("images")
 
             # 如果是世界圈类型
-            if type==constants.WORLDCIRCLE:
-
+            if type == constants.WORLDCIRCLE:
                 world = serializers.CreateWorldSerializer(data=request.data)
 
             # # 如果是表白墙类型
-            if type==constants.LOVEWALL:
+            if type == constants.LOVEWALL:
                 world = serializers.CreateConfessionWallSerializer(data=request.data)
-            print(world,"sssssssssssss")
+            print(world, "sssssssssssss")
 
             if world.is_valid():  # 如果验证通过
                 world_circle = world.save()  # 保存
@@ -222,12 +289,10 @@ class CreateWorldView(APIView):
                         else:
                             url = constants.StorageIP + ret["Remote file_id"]
 
-
-                            if type==constants.WORLDCIRCLE:
+                            if type == constants.WORLDCIRCLE:
                                 pic = serializers.WorldImagesSerializer(data={'ImagesUrl': url, 'img_conn': id})
 
-
-                            if type==constants.LOVEWALL:
+                            if type == constants.LOVEWALL:
                                 pic = serializers.ConfessionImagesSerializer(data={'ImagesUrl': url, 'img_conn': id})
 
                             if pic.is_valid():

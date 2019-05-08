@@ -19,6 +19,14 @@ urlpatterns = [
     # url(r'image_codes/$',views.ImageCodeView.as_view()),
     url(r'yz/$',views.Yz.as_view()),
 
+
+    url(r'follower/$',views.FollowerView.as_view()), # 我关注的人
+    url(r'followed/$',views.FollowedView.as_view()), # 关注我的人
+
+    url(r'unfollow/$',views.UnFollowView.as_view()), # 取消关注
+    url(r'follow/$',views.FollowView.as_view()), # 关注
+
+
     # url(r'^authorizations/$', obtain_jwt_token),
 
 
