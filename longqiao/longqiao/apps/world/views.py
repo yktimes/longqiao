@@ -1,3 +1,5 @@
+import base64
+
 from django.shortcuts import render
 from django.core.files.uploadedfile import UploadedFile
 
@@ -197,6 +199,7 @@ class WallCommentListView(APIView):
 
 class WorldListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     """使用GenericViewSet实现返回列表和单一值"""
+    # permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
     # 指定序列化器
     serializer_class = serializers.WorldSerializer
@@ -237,12 +240,82 @@ class DelWorldView(APIView):
 
 # url(r'^circle/$', views.CreateWorldView.as_view()),  # 创建动态(表白墙或世界圈)
 
+# class CreateWorldView(APIView):
+#     """
+#     新建动态
+#     """
+#
+#     # permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+#
+#     def get(self, request):
+#
+#         return render(request, 'world.html')
+#
+#     def post(self, request):
+#         print(request.data)
+#
+#         type = request.data.get("type")
+#         try:
+#             # 先接受下是否有图片,图片可以有多个
+#             images = request.data.getlist("images")
+#
+#             # 如果是世界圈类型
+#             if type == constants.WORLDCIRCLE:
+#                 world = serializers.CreateWorldSerializer(data=request.data)
+#
+#             # # 如果是表白墙类型
+#             if type == constants.LOVEWALL:
+#                 world = serializers.CreateConfessionWallSerializer(data=request.data)
+#             print(world, "sssssssssssss")
+#
+#             if world.is_valid():  # 如果验证通过
+#                 world_circle = world.save()  # 保存
+#                 id = world_circle.pk  # 取到id
+#             else:
+#                 print(world.errors)
+#
+#                 return Response({'message': "参数出错,无法创建"}, status=status.HTTP_400_BAD_REQUEST)
+#
+#             if images:  # 如果有图片
+#                 print(images)
+#                 for img in images:
+#                     if not isinstance(img, UploadedFile):  # 如果不是文件类型
+#                         print("空的")
+#                         del img  # 删除无效类型文件
+#                     else:
+#                         print(img.name)
+#                         try:
+#                             ret = client.upload_by_buffer(img.read(), file_ext_name=img.name.split(".")[-1])
+#                             print(ret)
+#                             if ret["Status"] != "Upload successed.":
+#                                 return Response({'message': "图片上传出错"}, status=status.HTTP_504_GATEWAY_TIMEOUT)
+#                         except:
+#
+#                             return Response({'message': "链接超时"}, status=status.HTTP_504_GATEWAY_TIMEOUT)
+#                         else:
+#                             url = constants.StorageIP + ret["Remote file_id"]
+#
+#                             if type == constants.WORLDCIRCLE:
+#                                 pic = serializers.WorldImagesSerializer(data={'ImagesUrl': url, 'img_conn': id})
+#
+#                             if type == constants.LOVEWALL:
+#                                 pic = serializers.ConfessionImagesSerializer(data={'ImagesUrl': url, 'img_conn': id})
+#
+#                             if pic.is_valid():
+#                                 pic.save()
+#         except:
+#
+#             return Response({'message': "连接超时"}, status=status.HTTP_504_GATEWAY_TIMEOUT)
+#
+#         print(request.data)
+#         return Response({"message": "ok"}, status=status.HTTP_200_OK)
+
 class CreateWorldView(APIView):
     """
     新建动态
     """
 
-    # permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+    permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
     def get(self, request):
 
@@ -250,55 +323,67 @@ class CreateWorldView(APIView):
 
     def post(self, request):
 
-        type = request.data.get("type")
-        try:
-            # 先接受下是否有图片,图片可以有多个
-            images = request.data.getlist("images")
-
-            # 如果是世界圈类型
-            if type == constants.WORLDCIRCLE:
-                world = serializers.CreateWorldSerializer(data=request.data)
-
-            # # 如果是表白墙类型
-            if type == constants.LOVEWALL:
-                world = serializers.CreateConfessionWallSerializer(data=request.data)
-            print(world, "sssssssssssss")
-
-            if world.is_valid():  # 如果验证通过
-                world_circle = world.save()  # 保存
-                id = world_circle.pk  # 取到id
-            else:
-                print(world.errors)
-
-                return Response({'message': "参数出错,无法创建"}, status=status.HTTP_400_BAD_REQUEST)
-
-            if images:  # 如果有图片
-                print(images)
-                for img in images:
-                    if not isinstance(img, UploadedFile):  # 如果不是文件类型
-                        print("空的")
-                        del img  # 删除无效类型文件
-                    else:
-                        print(img.name)
-                        try:
-                            ret = client.upload_by_buffer(img.read(), file_ext_name=img.name.split(".")[-1])
-                            if ret["Status"] != "Upload successed.":
-                                return Response({'message': "图片上传出错"}, status=status.HTTP_504_GATEWAY_TIMEOUT)
-                        except:
-                            return Response({'message': "链接超时"}, status=status.HTTP_504_GATEWAY_TIMEOUT)
-                        else:
-                            url = constants.StorageIP + ret["Remote file_id"]
-
-                            if type == constants.WORLDCIRCLE:
-                                pic = serializers.WorldImagesSerializer(data={'ImagesUrl': url, 'img_conn': id})
-
-                            if type == constants.LOVEWALL:
-                                pic = serializers.ConfessionImagesSerializer(data={'ImagesUrl': url, 'img_conn': id})
-
-                            if pic.is_valid():
-                                pic.save()
-        except:
-            return Response({'message': "连接超时"}, status=status.HTTP_504_GATEWAY_TIMEOUT)
-
+        print("user", request.user)
         print(request.data)
+        # vaild_user = {'Cuser': str(request.user.pk)}
+        # request.data.update(vaild_user)
+        #
+        # print("修改稿－－－", request.data)
+        type = request.data.get("type")
+
+        # 先接受下是否有图片,图片可以有多个
+
+        images = request.data.getlist("images")
+
+        # TODO　前段不传图片　出现问题
+        if images == ['']:  # 如果图片为空
+            print("lalallalallalallalal")
+            images = None
+
+        # 如果是世界圈(动态)类型
+        if type == constants.WORLDCIRCLE:
+            world = serializers.CreateWorldSerializer(data=request.data)
+
+        # # 如果是表白墙类型
+        if type == constants.LOVEWALL:
+            world = serializers.CreateConfessionWallSerializer(data=request.data)
+        print(world, "sssssssssssss")
+
+        if world.is_valid():  # 如果验证通过
+            world_circle = world.save()  # 保存
+            id = world_circle.pk  # 取到id
+        else:
+
+            return Response({'message': "内容不能为空哦"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if images:  # 如果有图片
+            print("1111111111111111111111")
+            for img in images:
+                # if not isinstance(img, UploadedFile):  # 如果不是文件类型
+                #     print("空的")
+                #     del img  # 删除无效类型文件
+                # else:
+                #     print(img.name)
+                try:
+                    # ret = client.upload_by_buffer(img.read(), file_ext_name=img.name.split(".")[-1])
+
+                    ret = client.upload_by_buffer(base64.b64decode(img), file_ext_name='jpg')
+                    print(ret)
+                    if ret["Status"] != "Upload successed.":
+                        return Response({'message': "图片上传出错"}, status=status.HTTP_504_GATEWAY_TIMEOUT)
+                except:
+
+                    return Response({'message': "链接超时"}, status=status.HTTP_504_GATEWAY_TIMEOUT)
+                else:
+                    url = constants.StorageIP + ret["Remote file_id"]
+
+                    if type == constants.WORLDCIRCLE:
+                        pic = serializers.WorldImagesSerializer(data={'ImagesUrl': url, 'img_conn': id})
+
+                    if type == constants.LOVEWALL:
+                        pic = serializers.ConfessionImagesSerializer(data={'ImagesUrl': url, 'img_conn': id})
+
+                    if pic.is_valid():
+                        pic.save()
+
         return Response({"message": "ok"}, status=status.HTTP_200_OK)

@@ -74,6 +74,7 @@ class UserView(APIView):
                 user = make_token(user)
 
                 data = {
+                    "id":user.pk,
                     "StudentID": user.StudentID,
                     "username": user.username,
                     "nickname": user.nickname,
@@ -84,7 +85,7 @@ class UserView(APIView):
                     "token":user.token
                 }
 
-                return Response({"message": "ok",  'results': data}, status=status.HTTP_200_OK)
+                return Response({"message": "ok",  'data': data}, status=status.HTTP_200_OK)
 
         except User.DoesNotExist:
             pass  # 用户还没有验证
@@ -136,6 +137,7 @@ class UserView(APIView):
                     user = make_token(user)
 
                     data ={
+                        "id": user.pk,
                         "StudentID":StudentID,
                         "username":user.username,
                         "nickname":nickname,
