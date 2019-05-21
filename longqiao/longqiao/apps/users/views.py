@@ -175,6 +175,8 @@ class UserDetailView(RetrieveAPIView):
         return self.request.user
 
 
+
+
 # class UserUpdatelView(APIView):
 #     # serializer_class = serializers.UserUpdateSerializer
 #     permission_classes = [IsAuthenticated]

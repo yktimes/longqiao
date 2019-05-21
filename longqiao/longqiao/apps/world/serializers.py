@@ -195,6 +195,8 @@ class WorldSerializer(serializers.ModelSerializer):
     # worldimages_set = ConfessionImagesSerializer()
     create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
 
+
+
     class Meta:
         model = WorldCircle
         fields = ('url','id', 'content',  'create_time', 'worldimages_set', 'Cuser','comment_count','up_count')

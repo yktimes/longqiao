@@ -2,6 +2,7 @@ import base64
 
 from django.shortcuts import render
 from django.core.files.uploadedfile import UploadedFile
+from django.db.models import F
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -68,7 +69,44 @@ class WallListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericView
     # def get_object(self):
     #     return ConfessionWall.objects.filter(is_delete=False).select_related("Cuser",'confessionimages').values("Cuser",'confessionimages')
 
+class LikeView(APIView):
+    """点赞"""
+    permission_classes = [IsAuthenticated]
 
+    def post(self,request):
+        """点赞功能"""
+        type = request.data['type']
+        news_id = request.data['world']
+
+        # 如果是世界圈(动态)类型
+        if type == constants.WORLDCIRCLE:
+            try:
+                news = WorldCircle.objects.get(pk=news_id)
+
+            except WorldCircle.DoesNotExist:
+                return Response({"message": "操作错误"})
+            else:
+
+                # 取消或添加赞
+                news.switch_like(request.user)
+                news.update(up_count=F("up_count") + 1)
+
+        # # 如果是表白墙类型
+        if type == constants.LOVEWALL:
+
+            try:
+                news = ConfessionWall.objects.get(pk=news_id)
+
+            except ConfessionWall.DoesNotExist:
+                return Response({"message": "操作错误"})
+            else:
+
+                # 取消或添加赞
+                news.switch_like(request.user)
+                news.update(up_count=F("up_count") + 1)
+
+        # return Response({"likes": news.count_likers()})
+        return Response({"message": "ok"})
 from rest_framework.parsers import MultiPartParser, FileUploadParser, JSONParser
 
 
@@ -199,7 +237,7 @@ class WallCommentListView(APIView):
 
 class WorldListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     """使用GenericViewSet实现返回列表和单一值"""
-    # permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+    permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
     # 指定序列化器
     serializer_class = serializers.WorldSerializer
@@ -357,6 +395,7 @@ class CreateWorldView(APIView):
             return Response({'message': "内容不能为空哦"}, status=status.HTTP_400_BAD_REQUEST)
 
         if images:  # 如果有图片
+            print("图片个数", len(images))
             print("1111111111111111111111")
             for img in images:
                 # if not isinstance(img, UploadedFile):  # 如果不是文件类型
