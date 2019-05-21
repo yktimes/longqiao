@@ -17,7 +17,7 @@ class ConfessionWall(models.Model):
 
     is_delete=models.BooleanField(default=False,verbose_name='删除标记') # 逻辑删除
 
-
+    liked = models.ManyToManyField('users.User', related_name='liked_wall', verbose_name='点赞用户')
     # 评论数
     comment_count = models.IntegerField(verbose_name="评论数", default=0)
     # 点赞数
@@ -33,6 +33,24 @@ class ConfessionWall(models.Model):
         verbose_name = "表白墙"
         verbose_name_plural = verbose_name
         ordering=['-create_time'] # 按创建时间倒序
+
+    def switch_like(self, user):
+        """点赞或取消赞"""
+
+        # 如果用户已经赞过，则取消赞
+        if user in self.liked.all():
+            self.liked.remove(user)
+
+        else:
+            self.liked.add(user)
+
+    def count_likers(self):
+        """点赞数"""
+        return self.liked.count()
+
+    def get_likers(self):
+        """获取所有点赞用户"""
+        return self.liked.all()
 
 #
 # class ConfessionImages(models.Model):
@@ -64,6 +82,70 @@ class ConfessionImages(models.Model):
         verbose_name = "表白墙照片"
         verbose_name_plural = verbose_name
 
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+
+
+
+# class GenericDig(models.Model):
+#     """通用点赞"""
+#     nid = models.AutoField(primary_key=True)
+#     # wall = models.ForeignKey(to="ConfessionWall", to_field="id")
+#
+#     # 外键，评论作者的 学号
+#     author_id = models.ForeignKey(to='users.User', to_field="id")
+#
+#
+#
+#     create_time = models.DateTimeField(auto_now_add=True)
+#
+#
+#     # GenericForeignKey设置
+#     content_type = models.ForeignKey(ContentType, related_name='gen_comment', on_delete=models.CASCADE)
+#     object_id = models.IntegerField()
+#     digs = GenericForeignKey()
+#
+#     def __str__(self):
+#         return self.author_id
+#
+#     class Meta:
+#         verbose_name = '通用点赞'
+#         verbose_name_plural = verbose_name
+#
+#         # SQL优化
+#         index_together = ('content_type', 'object_id')  # 联合唯一索引
+#
+# class GenericComment(models.Model):
+#     """
+#     通用评论表
+#     """
+#     nid = models.AutoField(primary_key=True)
+#     # wall = models.ForeignKey(to="ConfessionWall", to_field="id")
+#
+#     # 外键，评论作者的 学号
+#     author_id = models.ForeignKey(to='users.User',to_field="id")
+#
+#     content = models.CharField(max_length=255)  # 评论内容
+#
+#     create_time = models.DateTimeField(auto_now_add=True)
+#
+#     parent_id = models.ForeignKey("self",related_name='parent', null=True, blank=True)  # blank=True 在django admin里面可以不填
+#
+#     # GenericForeignKey设置
+#     content_type = models.ForeignKey(ContentType, related_name='gen_comment', on_delete=models.CASCADE)
+#     object_id = models.CharField(max_length=255)
+#     comments = GenericForeignKey()
+#
+#
+#     def __str__(self):
+#         return self.content
+#
+#     class Meta:
+#         verbose_name = '通用评论'
+#         verbose_name_plural = verbose_name
+#
+#         # SQL优化
+#         index_together = ('content_type', 'object_id')  # 联合唯一索引
 
 
 class WallComment(models.Model):
@@ -141,6 +223,7 @@ class WorldCircle(models.Model):
 
     create_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
 
+    liked = models.ManyToManyField('users.User', related_name='liked_world', verbose_name='点赞用户')
 
 
     is_delete=models.BooleanField(default=False,verbose_name='删除标记') # 逻辑删除
@@ -162,8 +245,23 @@ class WorldCircle(models.Model):
         verbose_name_plural = verbose_name
         ordering=['-create_time'] # 按创建时间倒序
 
+    def switch_like(self, user):
+        """点赞或取消赞"""
 
+        # 如果用户已经赞过，则取消赞
+        if user in self.liked.all():
+            self.liked.remove(user)
 
+        else:
+            self.liked.add(user)
+
+    def count_likers(self):
+        """点赞数"""
+        return self.liked.count()
+
+    def get_likers(self):
+        """获取所有点赞用户"""
+        return self.liked.all()
 
 
 class WorldImages(models.Model):

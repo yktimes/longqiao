@@ -18,5 +18,5 @@ urlpatterns = [
     url(r'^wallcomment/$', views.CreateWallCommentView.as_view()),  # 创建评论
 
     url(r'^wallcomments/$', views.WallCommentListView.as_view()),  # 得到评论
-
+    url(r"^like_world/", views.LikeView.as_view), # 赞  动态
 ]

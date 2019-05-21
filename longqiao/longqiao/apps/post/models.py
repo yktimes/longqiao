@@ -81,7 +81,7 @@ class Post(models.Model):
 
     @classmethod
     def all_posts(cls):
-        result = cache.get('all_posts')
+        result = cache.get('all_posts') # 用到缓存
         if not result:
             result = cls.objects.filter(status=Post.STATUS_NORMAL).select_related("owner",'category')
             cache.set('all_posts', result, 60)
