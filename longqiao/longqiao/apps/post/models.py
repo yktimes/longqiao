@@ -66,6 +66,7 @@ class Post(models.Model):
 
     owner = models.ForeignKey('users.User', verbose_name="作者", on_delete=models.DO_NOTHING)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
+    liked = models.ManyToManyField('users.User', related_name='liked_post', verbose_name='点赞用户')
 
     # 评论数
     comment_count = models.IntegerField(verbose_name="评论数", default=0)
@@ -87,6 +88,25 @@ class Post(models.Model):
             cache.set('all_posts', result, 60)
         return result
 
+
+
+    def switch_like(self, user):
+        """点赞或取消赞"""
+
+        # 如果用户已经赞过，则取消赞
+        if user in self.liked.all():
+            self.liked.remove(user)
+
+        else:
+            self.liked.add(user)
+
+    def count_likers(self):
+        """点赞数"""
+        return self.liked.count()
+
+    def get_likers(self):
+        """获取所有点赞用户"""
+        return self.liked.all()
     # @classmethod
     # def category_posts(cls):
     #     result = cache.get('all_posts')
@@ -94,3 +114,22 @@ class Post(models.Model):
     #         result = result.
     #         cache.set('all_posts', result, 60)
     #     return result
+
+
+
+class PostImages(models.Model):
+
+    """
+    贴吧的照片
+    """
+
+    ImagesUrl = models.CharField(max_length=200,verbose_name="照片url")
+
+    img_conn = models.ForeignKey(to="Post", to_field="id")
+
+    def __str__(self):
+        return self.ImagesUrl
+
+    class Meta:
+        verbose_name = "贴吧照片"
+        verbose_name_plural = verbose_name

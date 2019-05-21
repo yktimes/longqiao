@@ -48,12 +48,12 @@ client = Fdfs_client(constants.FDFS)
 #         return res
 
 class WallListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
-    """表白墙　使用GenericViewSet实现返回列表和单一值"""
+    """表白墙展示　使用GenericViewSet实现返回列表和单一值"""
 
     # 指定序列化器
     serializer_class = serializers.ConfessionWallSerializer
     # 制定查询集
-    queryset = ConfessionWall.objects.all()
+    queryset = ConfessionWall.objects.filter(is_delete=False)
 
     def get_queryset(self):
         return ConfessionWall.objects.filter(is_delete=False).select_related("Cuser")
@@ -76,7 +76,7 @@ class LikeView(APIView):
     def post(self,request):
         """点赞功能"""
         type = request.data['type']
-        news_id = request.data['world']
+        news_id = request.data['nid']
 
         # 如果是世界圈(动态)类型
         if type == constants.WORLDCIRCLE:
@@ -85,11 +85,11 @@ class LikeView(APIView):
 
             except WorldCircle.DoesNotExist:
                 return Response({"message": "操作错误"})
-            else:
-
-                # 取消或添加赞
-                news.switch_like(request.user)
-                news.update(up_count=F("up_count") + 1)
+            # else:
+            #
+            #     # 取消或添加赞
+            #     news.switch_like(request.user)
+            #     news.update(up_count=F("up_count") + 1)
 
         # # 如果是表白墙类型
         if type == constants.LOVEWALL:
@@ -99,15 +99,15 @@ class LikeView(APIView):
 
             except ConfessionWall.DoesNotExist:
                 return Response({"message": "操作错误"})
-            else:
+            # else:
 
-                # 取消或添加赞
-                news.switch_like(request.user)
-                news.update(up_count=F("up_count") + 1)
+        # 取消或添加赞
+        news.switch_like(request.user)
+        news.update(up_count=F("up_count") + 1)
 
         # return Response({"likes": news.count_likers()})
         return Response({"message": "ok"})
-from rest_framework.parsers import MultiPartParser, FileUploadParser, JSONParser
+
 
 
 # url(r'^loves/$', views.CreateWallView.as_view()),
@@ -143,15 +143,16 @@ class DelWallView(APIView):
         try:
             wall = ConfessionWall.objects.get(id=pk, is_delete=False)
 
-            if wall:
-                # 如果删除用户是当前用户
-                if wall.Cuser == request.user:
-                    # 进行逻辑删除
-                    wall.is_delete = True
-                    wall.save()
-                    return Response({'message': 'delete ok'}, status=status.HTTP_204_NO_CONTENT)
         except ConfessionWall.DoesNotExist:
             return Response({'message': 'delete error'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+
+            # 如果删除用户是当前用户
+            if wall.Cuser == request.user:
+                # 进行逻辑删除
+                wall.is_delete = True
+                wall.save()
+                return Response({'message': 'delete ok'}, status=status.HTTP_204_NO_CONTENT)
 
 
 #  url(r'^wallcomment/$', views.CreateWallCommentView.as_view()), # 创建评论
@@ -236,7 +237,7 @@ class WallCommentListView(APIView):
 #         return  Response({'data':'1111'})
 
 class WorldListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
-    """使用GenericViewSet实现返回列表和单一值"""
+    """动态展示　使用GenericViewSet实现返回列表和单一值"""
     permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
     # 指定序列化器
@@ -264,16 +265,16 @@ class DelWorldView(APIView):
         print(request.user)  # 可以得到用户
         try:
             world = WorldCircle.objects.get(id=pk, is_delete=False)
-
-            if world:
-                # 如果删除用户是当前用户
-                if world.Cuser == request.user:
-                    # 进行逻辑删除
-                    world.is_delete = True
-                    world.save()
-                    return Response({'message': 'delete ok'}, status=status.HTTP_204_NO_CONTENT)
         except WorldCircle.DoesNotExist:
             return Response({'message': 'delete error'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+
+            # 如果删除用户是当前用户
+            if world.Cuser == request.user:
+                # 进行逻辑删除
+                world.is_delete = True
+                world.save()
+                return Response({'message': 'delete ok'}, status=status.HTTP_204_NO_CONTENT)
 
 
 # url(r'^circle/$', views.CreateWorldView.as_view()),  # 创建动态(表白墙或世界圈)
