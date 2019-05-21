@@ -1,12 +1,10 @@
 from rest_framework import serializers
 from .models import ConfessionImages
-from .models import  ConfessionWall
-from .models import  WallComment
-
+from .models import ConfessionWall
+from .models import WallComment
 
 from .models import WorldImages
 from .models import WorldCircle
-
 
 from users.serializers import UserSerializer
 
@@ -31,8 +29,8 @@ class ConfessionImagesSerializer(serializers.ModelSerializer):
         model = ConfessionImages
         fields = ('ImagesUrl', 'img_conn')
 
-class ConfessionDetailSerializer(serializers.ModelSerializer):
 
+class ConfessionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConfessionWall
 
@@ -52,7 +50,6 @@ class ConfessionWallSerializer(serializers.ModelSerializer):
     表白墙序列化器
     """
 
-
     url = serializers.HyperlinkedIdentityField(view_name='walls-detail')
 
     Cuser = UserSerializer()
@@ -65,13 +62,14 @@ class ConfessionWallSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConfessionWall
-        fields = ('url','id', 'content', 'is_anonymity', 'create_time',  'Cuser','confessionimages_set')
+        fields = (
+        'url', 'id', 'content', 'is_anonymity', 'create_time', 'Cuser', 'confessionimages_set', 'comment_count',
+        'up_count')
 
         extra_kwargs = {
             'is_anonymity': {'required': False},
             'id': {'read_only': True}
         }
-
 
 
 class ImagesSerializer(serializers.ModelSerializer):
@@ -92,7 +90,7 @@ class CreateConfessionWallSerializer(serializers.ModelSerializer):
         fields = ('content', 'is_anonymity', 'Cuser')
 
         extra_kwargs = {
-            'is_anonymity': {'required': False,},
+            'is_anonymity': {'required': False, },
 
         }
 
@@ -105,6 +103,7 @@ class CreateConfessionWallSerializer(serializers.ModelSerializer):
     #     wall = super().create(validated_data)
     #
     #     return wall
+
 
 # class CreateConfessionWallSerializer(serializers.Serializer):
 #     id = serializers.IntegerField(label='ID',read_only=True)
@@ -141,10 +140,10 @@ class CreateConfessionWallSerializer(serializers.ModelSerializer):
 class CreateWallCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = WallComment
-        fields = ('wall', 'author_id', 'content','parent_id')
+        fields = ('wall', 'author_id', 'content', 'parent_id')
 
         extra_kwargs = {
-            'parent_id': {'required': False,},
+            'parent_id': {'required': False, },
         }
 
     def validate_content(self, value):
@@ -152,10 +151,7 @@ class CreateWallCommentSerializer(serializers.ModelSerializer):
         if not value.strip():
             raise serializers.ValidationError('评论不能为空')
 
-
         return value
-
-
 
 
 class WorldImagesSerializer(serializers.ModelSerializer):
@@ -195,11 +191,9 @@ class WorldSerializer(serializers.ModelSerializer):
     # worldimages_set = ConfessionImagesSerializer()
     create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
 
-
-
     class Meta:
         model = WorldCircle
-        fields = ('url','id', 'content',  'create_time', 'worldimages_set', 'Cuser','comment_count','up_count')
+        fields = ('url', 'id', 'content', 'create_time', 'worldimages_set', 'Cuser', 'comment_count', 'up_count')
 
         extra_kwargs = {
 
@@ -208,6 +202,8 @@ class WorldSerializer(serializers.ModelSerializer):
 
 
 class CreateWorldSerializer(serializers.ModelSerializer):
+    """创建动态序列化器"""
+
     class Meta:
         model = WorldCircle
-        fields = ('content',  'Cuser')
+        fields = ('content', 'Cuser')
