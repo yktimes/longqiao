@@ -62,9 +62,9 @@ class Post(models.Model):
 
     status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS, verbose_name="状态")
 
-    category = models.ForeignKey(Category, verbose_name="分类", on_delete=models.DO_NOTHING)
+    category = models.ForeignKey(Category, verbose_name="分类", on_delete=models.CASCADE)
 
-    owner = models.ForeignKey('users.User', verbose_name="作者", on_delete=models.DO_NOTHING)
+    owner = models.ForeignKey('users.User', verbose_name="作者", on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     liked = models.ManyToManyField('users.User', related_name='liked_post', verbose_name='点赞用户')
 

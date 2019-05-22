@@ -5,18 +5,69 @@ from .models import WallComment
 
 from .models import WorldImages
 from .models import WorldCircle
+from .models import Site
+from .models import SiteImages
 
 from users.serializers import UserSerializer
 
 import re
 
 
-# class ConfessionWallSerializer(serializers.Serializer):
-#
-#     id = serializers.IntegerField(label='ID',read_only=True)
-#     content = serializers.CharField(label='表白内容',max_length=255)
-#     is_anonymity = serializers.BooleanField(required=False,label='是否匿名')
-#     confessionimages_set = serializers.PrimaryKeyRelatedField(read_only=True,many=True)  # 新增
+
+class SiteImagesSerializer(serializers.ModelSerializer):
+    """
+    首页照片序列化器
+    """
+
+    # img_conn = ConfessionWallSerializer()
+
+    class Meta:
+        model = SiteImages
+        fields = ('ImagesUrl', 'img_conn')
+
+
+
+class SiteSerializer(serializers.ModelSerializer):
+    """
+    首页展示序列化器　　详情和列表
+    """
+
+    url = serializers.HyperlinkedIdentityField(view_name='site-detail')
+
+    Cuser = UserSerializer()
+
+    siteimages_set = serializers.SlugRelatedField(read_only=True, slug_field='ImagesUrl', many=True)  # 新增
+
+    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+
+    class Meta:
+        model = Site
+        fields = (
+        'url', 'id', 'content', 'tag', 'create_time', 'Cuser', 'siteimages_set', 'comment_count',
+        'up_count')
+
+        extra_kwargs = {
+
+            'id': {'read_only': True}
+        }
+
+class CreateSiteSerializer(serializers.ModelSerializer):
+    """创建首页序列化器"""
+
+    class Meta:
+        model = Site
+        fields = ('content', 'Cuser','is_top','tag')
+
+        extra_kwargs = {
+
+            'is_top': {'read_only': False},
+            'tag': {'read_only': False}
+        }
+
+
+
+
+
 
 class ConfessionImagesSerializer(serializers.ModelSerializer):
     """
@@ -47,7 +98,7 @@ class ConfessionDetailSerializer(serializers.ModelSerializer):
 
 class ConfessionWallSerializer(serializers.ModelSerializer):
     """
-    表白墙序列化器
+    表白墙展示序列化器　　详情和列表
     """
 
     url = serializers.HyperlinkedIdentityField(view_name='walls-detail')
@@ -105,36 +156,6 @@ class CreateConfessionWallSerializer(serializers.ModelSerializer):
     #     return wall
 
 
-# class CreateConfessionWallSerializer(serializers.Serializer):
-#     id = serializers.IntegerField(label='ID',read_only=True)
-#     content = serializers.CharField(label='表白内容',max_length=255)
-#     is_anonymity = serializers.BooleanField(required=False,label='是否匿名')
-#
-#     images =serializers.ImageField(required=False)
-#
-#     # # confessionimages_set = serializers.PrimaryKeyRelatedField(many=True)  # 新增
-#     # confessionimages_set = serializers.SlugRelatedField(
-#     #     many=True,
-#     #     read_only=False,
-#     #     slug_field='images'
-#     # )
-#     # class Meta:
-#     #
-#     #     model = ConfessionWall
-#     def validate_images(self, value):
-#         if value:
-#
-#             return value
-#
-#     def create(self, validated_data):
-#         """
-#         创建表白墙
-#         """
-#
-#         wall = super().create(validated_data)
-#
-#
-#         return wall
 
 # 创建表白墙评论　序列化器
 class CreateWallCommentSerializer(serializers.ModelSerializer):

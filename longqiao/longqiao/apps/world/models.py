@@ -1,6 +1,76 @@
 from django.db import models
 from longqiao.utils.models import BaseModel
 # Create your models here.
+class Site(models.Model):
+    """
+    首页
+    """
+
+    content = models.TextField(verbose_name='首页内容') # 内容
+
+    Cuser=models.ForeignKey('users.User',to_field="id") # 关联用户
+
+    create_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
+
+    is_top = models.BooleanField(default=False,verbose_name = "是否置顶") # 是否置顶
+
+    is_delete=models.BooleanField(default=False,verbose_name='删除标记') # 逻辑删除
+
+    tag = models.CharField(max_length=30,null=True,blank=True,verbose_name="标签名称")
+
+    liked = models.ManyToManyField('users.User', related_name='liked_site', verbose_name='点赞用户')
+    # 评论数
+    comment_count = models.IntegerField(verbose_name="评论数", default=0)
+    # 点赞数
+    up_count = models.IntegerField(verbose_name="点赞数", default=0)
+
+
+
+    def __str__(self):
+        return self.content
+
+
+    class Meta:
+        verbose_name = "首页"
+        verbose_name_plural = verbose_name
+        ordering=['-create_time'] # 按创建时间倒序
+
+    def switch_like(self, user):
+        """点赞或取消赞"""
+
+        # 如果用户已经赞过，则取消赞
+        if user in self.liked.all():
+            self.liked.remove(user)
+
+        else:
+            self.liked.add(user)
+
+    def count_likers(self):
+        """点赞数"""
+        return self.liked.count()
+
+    def get_likers(self):
+        """获取所有点赞用户"""
+        return self.liked.all()
+
+class SiteImages(models.Model):
+
+    """
+    首页的照片
+    """
+
+    ImagesUrl = models.CharField(max_length=200,verbose_name="照片url")
+
+    img_conn = models.ForeignKey(to="Site", to_field="id")
+
+    def __str__(self):
+        return self.ImagesUrl
+
+    class Meta:
+        verbose_name = "首页照片"
+        verbose_name_plural = verbose_name
+
+
 
 
 class ConfessionWall(models.Model):
@@ -16,6 +86,7 @@ class ConfessionWall(models.Model):
     is_anonymity = models.BooleanField(default=False,verbose_name='是否匿名') #是否匿名,默认不匿名
 
     is_delete=models.BooleanField(default=False,verbose_name='删除标记') # 逻辑删除
+
 
     liked = models.ManyToManyField('users.User', related_name='liked_wall', verbose_name='点赞用户')
     # 评论数
