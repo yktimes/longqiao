@@ -225,8 +225,8 @@ TIME_ZONE = 'Asia/Shanghai'
 USE_I18N = True
 
 USE_L10N = True
-
-USE_TZ = True
+# TODO　时区
+USE_TZ = False
 
 
 LOGGING = {
@@ -329,5 +329,19 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 # 定时任务
 CRONJOBS = [
     # 每1分钟执行一次
-    ('*/1 * * * *', 'world.crons.make_birthdays', '>> /home/python/Desktop/crontab.log')
+    # ('*/1 * * * *', 'world.crons.make_birthdays', '>> /home/python/Desktop/crontab.log')
+    # 每天凌晨发送
+    ('0 0 * * *', 'world.crons.make_birthdays', '>> /home/python/Desktop/crontab.log')
 ]
+"""
+
+添加定时任务到系统中
+
+python manage.py crontab add
+显示已经激活的定时任务
+
+python manage.py crontab show
+移除定时任务
+
+python manage.py crontab remove
+"""
