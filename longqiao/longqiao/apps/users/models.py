@@ -15,6 +15,8 @@ class User(AbstractUser):
     enrollmentDate = models.CharField(max_length=30, verbose_name='入学日期')
     birthday = models.CharField(max_length=30, verbose_name='出生日期')
 
+    sign = models.CharField(max_length=150, verbose_name='个人签名')
+    is_site = models.BooleanField(default=False,verbose_name="是否有权限开通首页")
     realBirthday = models.CharField(max_length=20, verbose_name='生日', db_index=True)
     department = models.CharField(max_length=30, verbose_name='系别')
     sclass = models.CharField(max_length=50, verbose_name='班级')
@@ -29,11 +31,31 @@ class User(AbstractUser):
         verbose_name = '用户'
         verbose_name_plural = verbose_name
 
+
+
+class FriendShip(models.Model):
+    """
+    关注关系表
+
+    """
+    followed = models.ForeignKey(User, related_name='followed',on_delete=models.CASCADE)  # 被别人关注
+
+    follower = models.ForeignKey(User, related_name='follower',on_delete=models.CASCADE)  # 关注别人
+    date = models.DateTimeField(auto_now_add=True)
+
+
+
+    class Meta:
+        ordering = ('-date',)
+
+
+    def __str__(self):
+        return f'{self.follower} follow {self.followed}'
+
     @staticmethod
     def follow(from_user, to_user):
         FriendShip(follower=from_user,
                    followed=to_user).save()  # 关注
-
 
     @staticmethod
     def unfollow(from_user, to_user):
@@ -45,6 +67,7 @@ class User(AbstractUser):
     @staticmethod
     def user_followed(from_user):
         followeders = FriendShip.objects.filter(follower=from_user).all()
+        print("fff", followeders)
         user_followed = []
         for followeder in followeders:
             user_followed.append(followeder.followed)
@@ -57,18 +80,3 @@ class User(AbstractUser):
         for followeder in followeders:
             user_followed.append(followeder.follower)
         return user_followed  # 得到关注我的人，返回列表
-
-
-class FriendShip(models.Model):
-    """
-    关注关系表
-    """
-    followed = models.ForeignKey(User, related_name='followed')  # 被关注
-    follower = models.ForeignKey(User, related_name='follower')  # 关注
-    date = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ('-date',)
-
-    def __str__(self):
-        return f'{self.follower} follow {self.followed}'

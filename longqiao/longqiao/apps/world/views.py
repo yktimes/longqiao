@@ -20,7 +20,8 @@ from .models import ConfessionWall
 from .models import WallComment
 from .models import WorldImages
 from .models import WorldCircle
-
+from .models import Site
+from  users.models import User,FriendShip
 from . import constants
 from . import serializers
 from rest_framework.permissions import IsAuthenticated
@@ -29,6 +30,45 @@ from fdfs_client.client import Fdfs_client
 
 client = Fdfs_client(constants.FDFS)
 
+
+class SiteListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+    """首页展示　使用GenericViewSet实现返回列表和单一值"""
+
+    # 指定序列化器
+    serializer_class = serializers.SiteSerializer
+    # 制定查询集
+    queryset = Site.objects.filter(is_delete=False)
+
+    def get_queryset(self):
+        return Site.objects.filter(is_delete=False).select_related("Cuser")
+
+class DelSiteView(APIView):
+    """
+    删除首页
+    """
+
+    # authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+
+    # delete/walls/<pk>/
+    def post(self, request, pk):
+        """
+        处理删除
+        """
+        print(request.user)  # 可以得到用户
+        try:
+            site = Site.objects.get(id=pk, is_delete=False)
+
+        except Site.DoesNotExist:
+            return Response({'message': 'delete error'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+
+            # 如果删除用户是当前用户
+            if site.Cuser == request.user:
+                # 进行逻辑删除
+                site.is_delete = True
+                site.save()
+                return Response({'message': 'delete ok'}, status=status.HTTP_204_NO_CONTENT)
 
 # url(r'^walls/$', views.BookListView.as_view()),
 # class WallListView(ListAPIView):
@@ -69,11 +109,13 @@ class WallListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericView
     # def get_object(self):
     #     return ConfessionWall.objects.filter(is_delete=False).select_related("Cuser",'confessionimages').values("Cuser",'confessionimages')
 
+
+
 class LikeView(APIView):
     """点赞"""
     permission_classes = [IsAuthenticated]
 
-    def post(self,request):
+    def post(self, request):
         """点赞功能"""
         type = request.data['type']
         news_id = request.data['nid']
@@ -99,6 +141,15 @@ class LikeView(APIView):
 
             except ConfessionWall.DoesNotExist:
                 return Response({"message": "操作错误"})
+
+        # # 如果是首页类型
+        if type == constants.SITE:
+
+            try:
+                news = Site.objects.get(pk=news_id)
+
+            except Site.DoesNotExist:
+                return Response({"message": "操作错误"})
             # else:
 
         # 取消或添加赞
@@ -107,7 +158,6 @@ class LikeView(APIView):
 
         # return Response({"likes": news.count_likers()})
         return Response({"message": "ok"})
-
 
 
 # url(r'^loves/$', views.CreateWallView.as_view()),
@@ -236,8 +286,21 @@ class WallCommentListView(APIView):
 #     def get(self,request):
 #         return  Response({'data':'1111'})
 
-class WorldListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
-    """动态展示　使用GenericViewSet实现返回列表和单一值"""
+
+# class FollowView(APIView):
+#
+#     def get(self,request):
+#
+#         user = request.user
+#         user_followed = FriendShip.user_followed(user)
+#         print("我是：",user.username,user.nickname)
+#         print("我关注的人  ",user_followed)
+#
+#         return Response({"user_list":"ok"})
+
+
+class FollowListView(ListAPIView):
+    """关注列表"""
     permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
     # 指定序列化器
@@ -246,6 +309,21 @@ class WorldListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericVie
     queryset = WorldCircle.objects.all()
 
     def get_queryset(self):
+        user = self.request.user
+        user_followed = FriendShip.user_followed(user) # 取到我关注的人
+        return WorldCircle.objects.filter(Cuser__in=user_followed).filter(is_delete=False).select_related("Cuser")
+
+class WorldListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+    """动态展示详情和列表　使用GenericViewSet实现返回列表和单一值"""
+    #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+
+    # 指定序列化器
+    serializer_class = serializers.WorldSerializer
+    # 制定查询集
+    queryset = WorldCircle.objects.all()
+
+    def get_queryset(self):
+
         return WorldCircle.objects.filter(is_delete=False).select_related("Cuser")
 
 
@@ -354,7 +432,7 @@ class CreateWorldView(APIView):
     新建动态
     """
 
-    permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
+    #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
 
     def get(self, request):
 
@@ -362,7 +440,7 @@ class CreateWorldView(APIView):
 
     def post(self, request):
 
-        print("user", request.user)
+        user = request.user
         print(request.data)
         # vaild_user = {'Cuser': str(request.user.pk)}
         # request.data.update(vaild_user)
@@ -386,6 +464,11 @@ class CreateWorldView(APIView):
         # # 如果是表白墙类型
         if type == constants.LOVEWALL:
             world = serializers.CreateConfessionWallSerializer(data=request.data)
+
+        # # 如果是首页类型
+        if type == constants.SITE:
+            if user.is_site or user.is_staff:  # 如果有首页权限或者管理员
+                world = serializers.CreateSiteSerializer(data=request.data)
         print(world, "sssssssssssss")
 
         if world.is_valid():  # 如果验证通过
@@ -422,7 +505,9 @@ class CreateWorldView(APIView):
 
                     if type == constants.LOVEWALL:
                         pic = serializers.ConfessionImagesSerializer(data={'ImagesUrl': url, 'img_conn': id})
-
+                    if type == constants.SITE:
+                        if user.is_site or user.is_staff:  # 如果有首页权限或者管理员
+                            pic = serializers.SiteImagesSerializer(data={'ImagesUrl': url, 'img_conn': id})
                     if pic.is_valid():
                         pic.save()
 

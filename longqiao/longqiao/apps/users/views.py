@@ -14,7 +14,7 @@ from django_redis import get_redis_connection
 
 from . import constants
 from .oauth import Spider
-from .models import User
+from .models import User,FriendShip
 from . import serializers
 from .utils import make_token
 from .utils import howLongDays
@@ -82,7 +82,8 @@ class UserView(APIView):
                     "sclass": user.sclass,
                     "classes": user.classes,
                     "avatar": user.avatar,
-                    "token":user.token
+                    "token":user.token,
+                    "is_site":user.is_site
                 }
 
                 return Response({"message": "ok",  'data': data}, status=status.HTTP_200_OK)
@@ -109,7 +110,7 @@ class UserView(APIView):
 
                     StudentID, name, gender, enrollmentDate, birthday, department, sclass, classes = self.s.get_info()
 
-                    nickname = '陇桥%05d' % (random.randint(0, 99999))
+                    nickname = '陇桥{0}{1}' .format ("小仙女" if gender == "女" else "小魔鬼",random.randint(0, 99999))
 
                     # 创建用户
                     user = User.objects.create_user(
@@ -145,7 +146,8 @@ class UserView(APIView):
                         "sclass":sclass,
                         "classes":classes,
                         "avatar":user.avatar,
-                        "token": user.token
+                        "token": user.token,
+                        "is_site":user.is_site #　是否有权限开通首页
                     }
                     redis_conn = get_redis_connection('courses')
 
@@ -346,7 +348,7 @@ class UnFollowView(APIView):
 
         try:
             to_use = User.objects.get(pk=to_user)
-            User.unfollow(user, to_use)
+            FriendShip.unfollow(user, to_use)
 
 
         except:
@@ -369,7 +371,7 @@ class FollowView(APIView):
 
         try:
             to_use = User.objects.get(pk=to_user)
-            User.follow(user,to_use)
+            FriendShip.follow(user,to_use)
 
 
         except:
@@ -391,9 +393,9 @@ class FollowerView(APIView):
         user_list=[]
         user = request.user
 
-        followed_list = User.user_followed(user)
+        followed_list = FriendShip.user_followed(user)
         for user in followed_list:
-            user_list.append({'user':user.nickname,'avatar':user.avatar})
+            user_list.append({'user_id':user.pk,'user':user.nickname,'avatar':user.avatar})
 
         print(user_list)
 
@@ -408,9 +410,9 @@ class FollowedView(APIView):
         user_list = []
         user = request.user
 
-        followed_list = User.user_follower(user)
+        followed_list = FriendShip.user_follower(user)
         for user in followed_list:
-            user_list.append({'user': user.nickname, 'avatar': user.avatar})
+            user_list.append({'user_id':user.pk,'user': user.nickname, 'avatar': user.avatar})
 
         print(user_list)
 

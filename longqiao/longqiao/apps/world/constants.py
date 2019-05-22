@@ -7,3 +7,4 @@ FDFS = '/home/python/longqiao/longqiao/longqiao/utils/fastdfs/client.conf'
 
 LOVEWALL = "1"
 WORLDCIRCLE = "2"
+SITE="3"

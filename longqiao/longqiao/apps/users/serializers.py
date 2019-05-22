@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id','StudentID', 'nickname','department','avatar')
+        fields = ('id','StudentID', 'nickname','department','avatar',"is_site","is_staff")
 
         read_only_fields = ('avatar',)
 
@@ -91,7 +91,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ('id','StudentID', 'nickname','avatar','gender','department', 'email', 'sclass','mobile')
+        fields = ('id','StudentID', 'nickname','avatar','gender','department', 'email', 'sclass','mobile','sign',"is_site")
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
@@ -100,7 +100,14 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ('nickname', 'email', 'mobile')
+        fields = ('nickname', 'email', 'mobile','sign')
+
+        extra_kwargs = {
+            'email': {'required': False},
+            'mobile': {'required': False},
+            'sign': {'required': False},
+
+        }
 
     def validate_mobile(self, value):
         """验证手机号"""

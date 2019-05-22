@@ -14,7 +14,7 @@ if __name__ == '__main__':
     ret = client.upload_by_filename('/home/python/Desktop/timg.jpg')
     print(ret)
     #
-    # import random
+    # import randomtb_users_groups
     # gen = ['男','女']
     # # User.objects.filter()
     # d =['信息工程系','会计系','法学系','外语系','艺术系']
