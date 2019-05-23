@@ -1,7 +1,9 @@
 import random
 import json
 
-from rest_framework.generics import RetrieveAPIView, UpdateAPIView
+from rest_framework.generics import RetrieveAPIView, UpdateAPIView, GenericAPIView, ListAPIView
+from rest_framework.mixins import RetrieveModelMixin
+
 from rest_framework.views import APIView
 from django.shortcuts import HttpResponse, redirect, render
 from django.contrib.auth import authenticate
@@ -12,12 +14,15 @@ from rest_framework_jwt.settings import api_settings
 from rest_framework.permissions import IsAuthenticated
 from django_redis import get_redis_connection
 
+from .serializers import UserSerializer
 from . import constants
 from .oauth import Spider
-from .models import User,FriendShip
+from .models import User, FriendShip
 from . import serializers
 from .utils import make_token
 from .utils import howLongDays
+from world.models import WorldCircle
+from world.serializers import WorldSerializer, MyWorldSerializer
 
 from fdfs_client.client import Fdfs_client
 
@@ -51,14 +56,13 @@ class UserView(APIView):
 
     def post(self, request):
 
-
         print("有人请求了")
         print(request.body)
         # b'name=20160741112&pwd=lch121922028&captcha=16gh'
         StudentID = request.data.get('name', '')
         password = request.data.get('pwd', '')
         code = request.data.get('captcha', '')
-        print(StudentID,password,code)
+        print(StudentID, password, code)
         # 如果用户要求的字段没有填写完整,则不让进行下一段验证
         if not all([StudentID, password, code]):
             return Response({"message": "数据不完整"}, status=status.HTTP_400_BAD_REQUEST)
@@ -74,7 +78,7 @@ class UserView(APIView):
                 user = make_token(user)
 
                 data = {
-                    "id":user.pk,
+                    "id": user.pk,
                     "StudentID": user.StudentID,
                     "username": user.username,
                     "nickname": user.nickname,
@@ -82,11 +86,11 @@ class UserView(APIView):
                     "sclass": user.sclass,
                     "classes": user.classes,
                     "avatar": user.avatar,
-                    "token":user.token,
-                    "is_site":user.is_site
+                    "token": user.token,
+                    "is_site": user.is_site
                 }
 
-                return Response({"message": "ok",  'data': data}, status=status.HTTP_200_OK)
+                return Response({"message": "ok", 'data': data}, status=status.HTTP_200_OK)
 
         except User.DoesNotExist:
             pass  # 用户还没有验证
@@ -110,7 +114,7 @@ class UserView(APIView):
 
                     StudentID, name, gender, enrollmentDate, birthday, department, sclass, classes = self.s.get_info()
 
-                    nickname = '陇桥{0}{1}' .format ("小仙女" if gender == "女" else "小魔鬼",random.randint(0, 99999))
+                    nickname = '陇桥{0}{1}'.format("小仙女" if gender == "女" else "小魔鬼", random.randint(0, 99999))
 
                     # 创建用户
                     user = User.objects.create_user(
@@ -137,17 +141,17 @@ class UserView(APIView):
 
                     user = make_token(user)
 
-                    data ={
+                    data = {
                         "id": user.pk,
-                        "StudentID":StudentID,
-                        "username":user.username,
-                        "nickname":nickname,
-                        "department":department,
-                        "sclass":sclass,
-                        "classes":classes,
-                        "avatar":user.avatar,
+                        "StudentID": StudentID,
+                        "username": user.username,
+                        "nickname": nickname,
+                        "department": department,
+                        "sclass": sclass,
+                        "classes": classes,
+                        "avatar": user.avatar,
                         "token": user.token,
-                        "is_site":user.is_site #　是否有权限开通首页
+                        "is_site": user.is_site  # 是否有权限开通首页
                     }
                     redis_conn = get_redis_connection('courses')
 
@@ -156,8 +160,7 @@ class UserView(APIView):
                         print("我去请求课程了")
                         self.s.get__lessons()  #
 
-
-                    return Response({"message": "ok", 'results':data},status=status.HTTP_200_OK)
+                    return Response({"message": "ok", 'results': data}, status=status.HTTP_200_OK)
                 except:
                     return Response({"message": "获取个人信息和创建异常"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
@@ -177,6 +180,33 @@ class UserDetailView(RetrieveAPIView):
         return self.request.user
 
 
+# url(r'^user/$', views.UserDetailView.as_view()), # 用户主页
+class User1DetailView(ListAPIView):
+    """
+    用户详情
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = WorldSerializer
+
+    def get_queryset(self):
+        return WorldCircle.objects.filter(Cuser=self.kwargs["pk"])
+
+    # def get_serializer_context(self):
+    #     world = WorldCircle.objects.filter(Cuser=self.kwargs["pk"])
+    #     self.kwargs['format']= WorldSerializer(world,many=True)
+
+    #
+    # def get(self, request, pk):
+    #
+    #
+    #     return self.retrieve(request)
+
+    # def get(self, request, pk):
+    #     return self.retrieve(request)
+    # def get_object(self):
+    #     return User.objects.get(pk=self.request.data['pk'])
 
 
 # class UserUpdatelView(APIView):
@@ -334,11 +364,11 @@ class AvatarView(APIView):
         else:
             return Response({'message': "error"}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UnFollowView(APIView):
     """
     取消关注
     """
-
 
     def post(self, request):
         print("***************")
@@ -362,25 +392,24 @@ class FollowView(APIView):
     """
     关注
     """
-    def post(self,request):
+
+    def post(self, request):
         to_user = request.data.get('to_user')
 
         user = request.user
 
-        print(user,to_user)
+        print(user, to_user)
 
         try:
             to_use = User.objects.get(pk=to_user)
-            FriendShip.follow(user,to_use)
+            FriendShip.follow(user, to_use)
 
 
         except:
-            return Response({'message':'error'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
 
         else:
             return Response({'message': 'ok'}, status=status.HTTP_200_OK)
-
-
 
 
 class FollowerView(APIView):
@@ -388,18 +417,23 @@ class FollowerView(APIView):
     关注的人
     """
 
+    def get(self, request):
+        user_list = get_follower(request)
+        return Response({"message": "ok", 'data': user_list.data}, status=status.HTTP_200_OK)
 
-    def get(self,request):
-        user_list=[]
+
+def get_follower(request, u=None):
+    if u:
+        user = u
+    else:
         user = request.user
 
-        followed_list = FriendShip.user_followed(user)
-        for user in followed_list:
-            user_list.append({'user_id':user.pk,'user':user.nickname,'avatar':user.avatar})
+    followed_list = FriendShip.user_followed(user)
+    user_list = UserSerializer(followed_list, context={'request': request}, many=True)
 
-        print(user_list)
+    print(user_list.data)
+    return user_list
 
-        return Response({"message":"ok",'data':user_list},status=status.HTTP_200_OK)
 
 class FollowedView(APIView):
     """
@@ -407,13 +441,52 @@ class FollowedView(APIView):
     """
 
     def get(self, request):
-        user_list = []
+        user_list = get_followed(request)
+
+        print(user_list.data)
+
+        return Response({"message": "ok", 'data': user_list.data}, status=status.HTTP_200_OK)
+
+
+def get_followed(request, u=None):
+    if u:
+        user = u
+    else:
         user = request.user
 
-        followed_list = FriendShip.user_follower(user)
-        for user in followed_list:
-            user_list.append({'user_id':user.pk,'user': user.nickname, 'avatar': user.avatar})
+    followed_list = FriendShip.user_follower(user)
+    user_list = UserSerializer(followed_list, context={'request': request}, many=True)
+    # for user in followed_list:
+    #     user_list.append({'user_id': user.pk, 'user': user.nickname, 'avatar': user.avatar})
 
-        print(user_list)
+    return user_list
 
-        return Response({"message": "ok", 'data': user_list}, status=status.HTTP_200_OK)
+
+class MySiteView(ListAPIView):
+    """我的主页"""
+
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = MyWorldSerializer
+
+    def get_queryset(self):
+        return WorldCircle.objects.filter(Cuser=self.kwargs["pk"])
+
+    def get(self, request, *args, **kwargs):
+        world = super(ListAPIView, self).list(request, *args, **kwargs)
+        user = User.objects.get(pk=self.kwargs["pk"])
+        # TODO context={'request': request}　必须加
+        user_info = UserSerializer(user, context={'request': request})
+
+        fd = get_followed(request, u=user).data  # 关注我的人
+        fd_count = len(fd)
+        fr = get_follower(request, u=user).data  # 我关注的人
+        fr_count = len(fr)
+
+        # print(fd.data)
+        # print(fr.data)
+        # print(world.data)
+        # print(user_info.data)
+        return Response({"world": world.data, "userinfo": user_info.data,
+                         "fd_count": fd_count, "fd": fd,
+                         "fr_count": fr_count, "fr": fr})

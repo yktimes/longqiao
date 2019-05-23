@@ -222,6 +222,32 @@ class WorldSerializer(serializers.ModelSerializer):
         }
 
 
+
+class MyWorldSerializer(serializers.ModelSerializer):
+    """
+    个人动态圈展示序列化器
+
+
+    """
+    url = serializers.HyperlinkedIdentityField(view_name='world-detail')
+
+
+    # worldimages_set = serializers.PrimaryKeyRelatedField(read_only=True,many=True)  # 新增
+    worldimages_set = serializers.SlugRelatedField(read_only=True, slug_field='ImagesUrl', many=True)  # 新增
+
+    # worldimages_set = ConfessionImagesSerializer()
+    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+
+    class Meta:
+        model = WorldCircle
+        fields = ('url', 'id', 'content', 'create_time', 'worldimages_set',  'comment_count', 'up_count')
+
+        extra_kwargs = {
+
+            'id': {'read_only': True}
+        }
+
+
 class CreateWorldSerializer(serializers.ModelSerializer):
     """创建动态序列化器"""
 
