@@ -6,6 +6,10 @@ urlpatterns = [
     url(r'^users/', views.UserView.as_view()), # 创建用户
 
     url(r'^user/$', views.UserDetailView.as_view()), # 用户个人信息
+    # 个人主页
+    url(r'^mysite/(?P<pk>\d+)/$', views.MySiteView.as_view(), name='my-detail'), # 用户超链接
+
+
 
     url(r'^info/$', views.UserUpdatelView.as_view()), # 修改用户个人信息
 

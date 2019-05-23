@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.cache import cache
 from longqiao.utils.models import BaseModel
 # Create your models here.
 class Site(models.Model):
@@ -52,6 +53,22 @@ class Site(models.Model):
     def get_likers(self):
         """获取所有点赞用户"""
         return self.liked.all()
+
+
+
+    @classmethod
+    def get_topped_sites(cls):
+        """返回置顶"""
+        # result = cache.get('top_sites')  # 用到缓存
+        # if not result:
+        #     topped_sites = cls.objects.filter(is_delete=False,is_top=True)
+        #     cache.set('top_sites', topped_sites, 60*60*)
+        #
+        # return result
+
+        topped_sites = cls.objects.filter(is_delete=False, is_top=True)
+        return topped_sites
+
 
 class SiteImages(models.Model):
 

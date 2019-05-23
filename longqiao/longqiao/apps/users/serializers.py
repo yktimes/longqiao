@@ -11,10 +11,10 @@ class UserSerializer(serializers.ModelSerializer):
     创建用户序列化器
     """
 
-
+    url = serializers.HyperlinkedIdentityField(view_name='my-detail')
     class Meta:
         model = User
-        fields = ('id','StudentID', 'nickname','department','avatar',"is_site","is_staff")
+        fields = ('url','id','StudentID', 'nickname','department','avatar',"is_site","is_staff")
 
         read_only_fields = ('avatar',)
 
@@ -136,3 +136,5 @@ class PostUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id','StudentID', 'nickname','department','avatar')
+
+

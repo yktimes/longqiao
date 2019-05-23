@@ -31,6 +31,18 @@ from fdfs_client.client import Fdfs_client
 client = Fdfs_client(constants.FDFS)
 
 
+
+class TopListView(ListAPIView):
+    """置顶展示　使用GenericViewSet实现返回列表和单一值"""
+
+    # 指定序列化器
+    serializer_class = serializers.SiteSerializer
+    # 制定查询集
+    queryset = Site.objects.filter(is_delete=False, is_top=True)
+
+    # def get_queryset(self):
+    #     return Site.objects.filter(is_delete=False, is_top=True)
+
 class SiteListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     """首页展示　使用GenericViewSet实现返回列表和单一值"""
 
@@ -313,6 +325,8 @@ class FollowListView(ListAPIView):
         user_followed = FriendShip.user_followed(user) # 取到我关注的人
         return WorldCircle.objects.filter(Cuser__in=user_followed).filter(is_delete=False).select_related("Cuser")
 
+
+
 class WorldListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     """动态展示详情和列表　使用GenericViewSet实现返回列表和单一值"""
     #permission_classes = (IsAuthenticated,)  # 权限类,必须通过认证成功　才能访问或执行
@@ -512,3 +526,26 @@ class CreateWorldView(APIView):
                         pic.save()
 
         return Response({"message": "ok"}, status=status.HTTP_200_OK)
+
+
+ # top/site/<pk>/
+class TopView(APIView):
+    """置顶和取消置顶"""
+    def post(self,request,pk):
+
+
+
+     try:
+         site = Site.objects.get(id=pk, is_delete=False)
+     except site.DoesNotExist:
+         return Response({"message": "error"}, status=status.HTTP_400_BAD_REQUEST)
+
+     else:
+
+         if site.Cuser == request.user:
+             if site.is_top:
+                 site.is_top=False
+
+             else:
+                 site.is_top = True
+             site.save()
