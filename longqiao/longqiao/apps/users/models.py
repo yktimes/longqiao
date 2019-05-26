@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from . import constants
 
 # Create your models here.
 class User(AbstractUser):
@@ -8,7 +8,7 @@ class User(AbstractUser):
     StudentID = models.BigIntegerField(verbose_name='学号', unique=True)
 
     avatar = models.CharField(max_length=200, verbose_name="用户头像",
-                              default="http://47.94.253.97:8888/group1/M00/00/00/rBGjLFyhvy2Aaue5AAAOobGPP50788.jpg")
+                              default=constants.AVATAR_ADRR)
 
     nickname = models.CharField(max_length=60, verbose_name='昵称', db_index=True)
     gender = models.CharField(max_length=10, verbose_name='性别')
@@ -22,6 +22,9 @@ class User(AbstractUser):
     sclass = models.CharField(max_length=50, verbose_name='班级')
     classes = models.CharField(max_length=20, verbose_name='级别')
     mobile = models.CharField(max_length=11, null=True, verbose_name='手机号')
+    site_pic = models.CharField(max_length=200, verbose_name="用户主页背景",
+                              default=constants.SITE_ADRR)
+
 
     def __str__(self):
         return self.nickname

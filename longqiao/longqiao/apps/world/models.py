@@ -34,7 +34,8 @@ class Site(models.Model):
     class Meta:
         verbose_name = "首页"
         verbose_name_plural = verbose_name
-        ordering=['-create_time'] # 按创建时间倒序
+        ordering=['-is_top','-create_time'] # 按创建时间倒序
+
 
     def switch_like(self, user):
         """点赞或取消赞"""

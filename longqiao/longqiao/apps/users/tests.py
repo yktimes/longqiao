@@ -11,7 +11,7 @@ if __name__ == '__main__':
     from fdfs_client.client import Fdfs_client
 
     client = Fdfs_client(constants.FDFS)
-    ret = client.upload_by_filename('/home/python/Desktop/timg.jpg')
+    ret = client.upload_by_filename('/home/python/Desktop/site.jpg')
     print(ret)
     #
     # import randomtb_users_groups

@@ -47,9 +47,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
 
+    'channels',
+
     'users.apps.UsersConfig',
     'world.apps.WorldConfig',
     'post.apps.PostConfig',
+    'messager.apps.MessagerConfig',
 
     'corsheaders',
 
@@ -103,7 +106,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'longqiao.wsgi.application'
-
+ASGI_APPLICATION = "longqiao.routing.application"
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -191,7 +194,7 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
 
-
+# TODO　自定义认证
 AUTHENTICATION_BACKENDS = [
     'users.utils.UsernameMobileAuthBackend',
 ]

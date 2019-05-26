@@ -14,7 +14,7 @@ urlpatterns = [
     url(r'^top/site/$', views.TopListView.as_view()),  # 置顶展示
     url(r'^top/site/(?P<pk>\d+)/$', views.TopView.as_view()), # 置顶
 
-    url(r'^f/$', views.FollowListView.as_view(), ), # 关注列表
+    url(r'^f/$', views.FollowListView.as_view(), ), # 首页关注列表
 
 
     # 世界圈 动态

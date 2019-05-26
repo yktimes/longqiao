@@ -43,7 +43,7 @@ class SiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Site
         fields = (
-        'url', 'id', 'content', 'tag', 'create_time', 'Cuser', 'siteimages_set', 'comment_count',
+        'url', 'id', 'is_top','content', 'tag', 'create_time', 'Cuser', 'siteimages_set', 'comment_count',
         'up_count')
 
         extra_kwargs = {
@@ -230,7 +230,6 @@ class MyWorldSerializer(serializers.ModelSerializer):
 
     """
     url = serializers.HyperlinkedIdentityField(view_name='world-detail')
-
 
     # worldimages_set = serializers.PrimaryKeyRelatedField(read_only=True,many=True)  # 新增
     worldimages_set = serializers.SlugRelatedField(read_only=True, slug_field='ImagesUrl', many=True)  # 新增

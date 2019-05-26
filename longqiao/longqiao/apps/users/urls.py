@@ -19,7 +19,7 @@ urlpatterns = [
 
     url(r'^relessons/$', views.RefreshLessonsView.as_view()), # 获取课程
 
-    url(r'^avatar/$', views.AvatarView.as_view()), # 修改头像
+    url(r'^pic/$', views.PicView.as_view()), # 修改头像或个人主页背景　　注意格外传类型
     # url(r'image_codes/$',views.ImageCodeView.as_view()),
     url(r'yz/$',views.Yz.as_view()),
 
