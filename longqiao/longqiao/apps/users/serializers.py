@@ -18,6 +18,18 @@ class UserSerializer(serializers.ModelSerializer):
 
         read_only_fields = ('avatar',)
 
+class SiteUserSerializer(serializers.ModelSerializer):
+    """
+    用户个人序列化器
+    """
+
+    url = serializers.HyperlinkedIdentityField(view_name='my-detail')
+
+    class Meta:
+        model = User
+        fields = ('url', 'id', 'StudentID', 'site_pic','nickname', 'department', 'avatar', "is_site", "is_staff")
+
+        read_only_fields = ('avatar','site_pic')
     # def validate_mobile(self, value):
     #     """验证手机号"""
     #     if not re.match(r'^1[3-9]\d{9}$', value):

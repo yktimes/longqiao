@@ -14,7 +14,7 @@ from rest_framework_jwt.settings import api_settings
 from rest_framework.permissions import IsAuthenticated
 from django_redis import get_redis_connection
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer, SiteUserSerializer
 from . import constants
 from .oauth import Spider
 from .models import User, FriendShip
@@ -365,6 +365,40 @@ class AvatarView(APIView):
             return Response({'message': "error"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class PicView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    """
+    修改主页背景或头像
+    """
+
+    def post(self, request):
+        type = request.data.get("type")
+        user = request.user
+
+        pic = request.data.get("pic")
+
+        if pic:
+            try:
+                ret = client.upload_by_buffer(pic.read(), file_ext_name=pic.name.split(".")[-1])
+                if ret["Status"] == "Upload successed.":
+                    url = constants.StorageIP + ret["Remote file_id"]
+                    if type == 'avatar':
+                        u = user.avatar = url
+
+                    elif type == 'avatar':
+                        u = user.site_pic = url
+
+                    u.save()
+                    return Response({'message': "ok", 'pic': url})
+
+            except:
+                return Response({'message': "上传失败"})
+
+        else:
+            return Response({'message': "error"}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class UnFollowView(APIView):
     """
     取消关注
@@ -465,18 +499,18 @@ def get_followed(request, u=None):
 class MySiteView(ListAPIView):
     """我的主页"""
 
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     serializer_class = MyWorldSerializer
 
     def get_queryset(self):
-        return WorldCircle.objects.filter(Cuser=self.kwargs["pk"])
+        return WorldCircle.objects.filter(Cuser=self.kwargs["pk"]).select_related("Cuser")
 
     def get(self, request, *args, **kwargs):
         world = super(ListAPIView, self).list(request, *args, **kwargs)
         user = User.objects.get(pk=self.kwargs["pk"])
         # TODO context={'request': request}　必须加
-        user_info = UserSerializer(user, context={'request': request})
+        user_info = SiteUserSerializer(user, context={'request': request})
 
         fd = get_followed(request, u=user).data  # 关注我的人
         fd_count = len(fd)
