@@ -105,7 +105,7 @@ class WallListView(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericView
     # 指定序列化器
     serializer_class = serializers.ConfessionWallSerializer
     # 制定查询集
-    queryset = ConfessionWall.objects.filter(is_delete=False)
+    # queryset = ConfessionWall.objects.filter(is_delete=False)
 
     def get_queryset(self):
         return ConfessionWall.objects.filter(is_delete=False).select_related("Cuser")

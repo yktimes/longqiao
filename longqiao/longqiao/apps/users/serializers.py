@@ -27,9 +27,11 @@ class SiteUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('url', 'id', 'StudentID', 'site_pic','nickname', 'department', 'avatar', "is_site", "is_staff")
+        fields = ('url', 'id', 'gender','StudentID', 'site_pic','nickname', 'department', 'avatar', "is_site", "is_staff","sign")
 
         read_only_fields = ('avatar','site_pic')
+
+
     # def validate_mobile(self, value):
     #     """验证手机号"""
     #     if not re.match(r'^1[3-9]\d{9}$', value):
@@ -143,7 +145,6 @@ class PostUserSerializer(serializers.ModelSerializer):
     """
     用户加图像序列化器
     """
-
 
     class Meta:
         model = User

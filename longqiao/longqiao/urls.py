@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^', include('world.urls')),
     url(r'^', include('post.urls'),),
     url(r'^', include('messager.urls'),),
+    url(r'^', include('notifications.urls'),),
 
     url(r'^docs/', include_docs_urls(title='My API title')),
 

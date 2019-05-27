@@ -15,7 +15,7 @@ class User(AbstractUser):
     enrollmentDate = models.CharField(max_length=30, verbose_name='入学日期')
     birthday = models.CharField(max_length=30, verbose_name='出生日期')
 
-    sign = models.CharField(max_length=150, verbose_name='个人签名')
+    sign = models.CharField(max_length=66, verbose_name='个人签名')
     is_site = models.BooleanField(default=False,verbose_name="是否有权限开通首页")
     realBirthday = models.CharField(max_length=20, verbose_name='生日', db_index=True)
     department = models.CharField(max_length=30, verbose_name='系别')

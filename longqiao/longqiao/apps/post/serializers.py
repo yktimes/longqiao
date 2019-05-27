@@ -15,7 +15,7 @@ class PostListSerializer(serializers.ModelSerializer):
     """
     url = serializers.HyperlinkedIdentityField(view_name='post-detail')
     # owner = serializers.StringRelatedField(label='昵称')
-    owner = UserSerializer()
+    Cuser = UserSerializer()
     postimages_set = serializers.SlugRelatedField(read_only=True, slug_field='ImagesUrl', many=True)  # 新增
 
     created_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
@@ -23,7 +23,7 @@ class PostListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = (
-        'url', 'owner', "postimages_set", 'title', 'desc', 'category', 'created_time', 'comment_count', 'up_count')
+        'url', 'Cuser', "postimages_set", 'title', 'desc', 'category', 'created_time', 'comment_count', 'up_count')
 
         extra_kwargs = {
 
@@ -47,7 +47,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     """
     帖子详情展示
     """
-    owner = UserSerializer()
+    Cuser = UserSerializer()
     postimages_set = serializers.SlugRelatedField(read_only=True, slug_field='ImagesUrl', many=True)  # 新增
 
     created_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
@@ -55,7 +55,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = (
-            'owner', "postimages_set", 'title', 'content', 'category', 'created_time', 'comment_count', 'up_count')
+            'Cuser', "postimages_set", 'title', 'content', 'category', 'created_time', 'comment_count', 'up_count')
 
         extra_kwargs = {
 
@@ -67,7 +67,7 @@ class CreatePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
 
-        fields = ('title', 'content', 'category', 'owner', 'created_time')
+        fields = ('title', 'content', 'category', 'Cuser', 'created_time')
 
         extra_kwargs = {
             "created_time": {'required': False},

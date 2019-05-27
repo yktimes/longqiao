@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.cache import cache
 from longqiao.utils.models import BaseModel
+from notifications.views import notification_handler
+
 # Create your models here.
 class Site(models.Model):
     """
@@ -46,6 +48,10 @@ class Site(models.Model):
 
         else:
             self.liked.add(user)
+
+            # 添加赞的时候通知楼主　　# 这个ｋｅｙ可也不写
+            # TODO　 首页点赞提醒
+            # notification_handler(user,self.Cuser,'L',self,id_value=str(self.pk),key="social_update")
 
     def count_likers(self):
         """点赞数"""
@@ -132,6 +138,11 @@ class ConfessionWall(models.Model):
 
         else:
             self.liked.add(user)
+
+            # 添加赞的时候通知楼主　　# 这个ｋｅｙ可也不写
+                        # TODO　 表白墙点赞提醒
+            # notification_handler(user,self.Cuser,'L',self,id_value=str(self.pk),key="social_update")
+
 
     def count_likers(self):
         """点赞数"""
@@ -256,6 +267,12 @@ class WallComment(models.Model):
     def __str__(self):
         return self.content
 
+    # def save(self, force_insert=False, force_update=False, using=None,
+    #          update_fields=None):
+    #     super(WallComment,self).save()
+
+
+
     def get_descendants(self):
         '''获取一级评论的所有子孙'''
         data = set()
@@ -334,6 +351,9 @@ class WorldCircle(models.Model):
         verbose_name_plural = verbose_name
         ordering=['-create_time'] # 按创建时间倒序
 
+
+
+
     def switch_like(self, user):
         """点赞或取消赞"""
 
@@ -343,6 +363,10 @@ class WorldCircle(models.Model):
 
         else:
             self.liked.add(user)
+
+            # 添加赞的时候通知楼主　　# 这个ｋｅｙ可也不写
+            # TODO　 动态点赞提醒
+            # notification_handler(user,self.Cuser,'L',self,id_value=str(self.pk),key="social_update")
 
     def count_likers(self):
         """点赞数"""

@@ -23,7 +23,7 @@ from .utils import make_token
 from .utils import howLongDays
 from world.models import WorldCircle
 from world.serializers import WorldSerializer, MyWorldSerializer
-
+from .utils import howLongDays
 from fdfs_client.client import Fdfs_client
 
 client = Fdfs_client(constants.FDFS)
@@ -496,31 +496,69 @@ def get_followed(request, u=None):
     return user_list
 
 
-class MySiteView(ListAPIView):
-    """我的主页"""
-
-    # permission_classes = [IsAuthenticated]
-
+class MyDynamicVIew(ListAPIView):
+    """我的主页动态"""
     serializer_class = MyWorldSerializer
 
     def get_queryset(self):
         return WorldCircle.objects.filter(Cuser=self.kwargs["pk"]).select_related("Cuser")
 
-    def get(self, request, *args, **kwargs):
-        world = super(ListAPIView, self).list(request, *args, **kwargs)
-        user = User.objects.get(pk=self.kwargs["pk"])
-        # TODO context={'request': request}　必须加
-        user_info = SiteUserSerializer(user, context={'request': request})
+
+
+
+
+class MySiteView(APIView):
+    """我的主页信息"""
+
+    # permission_classes = [IsAuthenticated]
+
+    def get(self,request,pk):
+        user = User.objects.get(pk=pk)
+
+        user_info = SiteUserSerializer(user,context={'request': request})
+
+        # return Response({"user_info":user_info.data})
+
+        days = howLongDays(user.enrollmentDate)
+
+
 
         fd = get_followed(request, u=user).data  # 关注我的人
         fd_count = len(fd)
         fr = get_follower(request, u=user).data  # 我关注的人
         fr_count = len(fr)
 
+
+        return Response({"userinfo": user_info.data,
+                     "fd_count": fd_count, "fd": fd,
+                     "fr_count": fr_count, "fr": fr,
+                    "days":str("陪伴 ")+str(days)})
+
+    # serializer_class = SiteUserSerializer
+    #
+    #
+    # def get_queryset(self):
+    #     return User.objects.get(pk=self.args["pk"])
+
+
+    # def get(self, request, *args, **kwargs):
+    #     world = super(ListAPIView, self).list(request, *args, **kwargs)
+    #     user = User.objects.get(pk=self.kwargs["pk"])
+    #     # TODO context={'request': request}　必须加
+    #     days = howLongDays(user.enrollmentDate)
+    #
+    #     user_info = SiteUserSerializer(user, context={'request': request})
+    #
+    #     fd = get_followed(request, u=user).data  # 关注我的人
+    #     fd_count = len(fd)
+    #     fr = get_follower(request, u=user).data  # 我关注的人
+    #     fr_count = len(fr)
+
         # print(fd.data)
         # print(fr.data)
         # print(world.data)
         # print(user_info.data)
-        return Response({"world": world.data, "userinfo": user_info.data,
-                         "fd_count": fd_count, "fd": fd,
-                         "fr_count": fr_count, "fr": fr})
+        # return Response({"world": world.data, "userinfo": user_info.data,
+        #                  "fd_count": fd_count, "fd": fd,
+        #                  "fr_count": fr_count, "fr": fr,
+        #                 "days":str("陪伴 ")+str(days)})
