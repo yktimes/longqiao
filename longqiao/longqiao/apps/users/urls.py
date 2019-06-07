@@ -6,8 +6,9 @@ urlpatterns = [
     url(r'^users/', views.UserView.as_view()), # 创建用户
 
     url(r'^user/$', views.UserDetailView.as_view()), # 用户个人信息
-    # 个人主页
+    # 个人主页信息
     url(r'^mysite/(?P<pk>\d+)/$', views.MySiteView.as_view(), name='my-detail'), # 用户超链接
+    url(r'^mydynamic/(?P<pk>\d+)/$', views.MyDynamicVIew.as_view()), # 用户超链接
 
 
 

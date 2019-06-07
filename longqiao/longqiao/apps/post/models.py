@@ -64,7 +64,7 @@ class Post(models.Model):
 
     category = models.ForeignKey(Category, verbose_name="分类", on_delete=models.CASCADE)
 
-    owner = models.ForeignKey('users.User', verbose_name="作者", on_delete=models.CASCADE)
+    Cuser = models.ForeignKey('users.User', verbose_name="作者", on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     liked = models.ManyToManyField('users.User', related_name='liked_post', verbose_name='点赞用户')
 
@@ -84,7 +84,7 @@ class Post(models.Model):
     def all_posts(cls):
         result = cache.get('all_posts') # 用到缓存
         if not result:
-            result = cls.objects.filter(status=Post.STATUS_NORMAL).select_related("owner",'category')
+            result = cls.objects.filter(status=Post.STATUS_NORMAL).select_related("Cuser",'category')
             cache.set('all_posts', result, 60)
         return result
 

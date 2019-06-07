@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'world.apps.WorldConfig',
     'post.apps.PostConfig',
     'messager.apps.MessagerConfig',
+    'notifications.apps.NotificationsConfig',
 
     'corsheaders',
 

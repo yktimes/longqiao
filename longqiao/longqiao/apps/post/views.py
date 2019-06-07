@@ -41,7 +41,7 @@ class PostListView(ListAPIView):
     def filter_queryset(self, queryset):
         category_id = self.request.query_params.get("category")
         if category_id:
-            return Post.objects.filter(category_id=category_id, status=Post.STATUS_NORMAL).select_related("owner",
+            return Post.objects.filter(category_id=category_id, status=Post.STATUS_NORMAL).select_related("Cuser",
                                                                                                           'category')
 
         return queryset
@@ -140,7 +140,7 @@ class DelPostView(APIView):
         else:
 
             # 如果删除用户是当前用户
-            if post.owner == request.user:
+            if post.Cuser == request.user:
                 # 进行逻辑删除
                 post.status = Post.STATUS_DELETE
                 post.save()
