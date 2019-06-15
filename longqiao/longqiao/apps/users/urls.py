@@ -32,6 +32,10 @@ urlpatterns = [
     url(r'follow/$',views.FollowView.as_view()), # 关注
 
 
+    # 用户反馈
+    url(r'feed/$',views.FeedView.as_view()), # 用户反馈
+
+
     # url(r'^authorizations/$', obtain_jwt_token),
 
 

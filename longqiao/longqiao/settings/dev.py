@@ -349,3 +349,23 @@ python manage.py crontab show
 
 python manage.py crontab remove
 """
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+#代理以及端口必须有
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_PORT = 465
+EMAIL_USE_SSL=True
+
+#发送邮件的邮箱
+EMAIL_HOST_USER = '1162073988@qq.com'
+#在邮箱中设置的客户端授权密码
+EMAIL_HOST_PASSWORD = 'ouwqfdcqrjohhfig'
+#收件人看到的发件人
+EMAIL_FROM = EMAIL_HOST_USER
+
+# 反馈的邮箱地址
+TO_EMAIL_AA = "yktimes@163.com"
+
+

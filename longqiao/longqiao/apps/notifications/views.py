@@ -28,7 +28,7 @@ def mark_all_as_read(request):
     request.user.notifications.mark_all_as_read()
     redirect_url = request.GET.get('next') # 如果从其他链接跳过来的
 
-    messages.add_message(request, messages.SUCCESS, f'用户{request.user.username}的所有通知标为已读')
+
 
     if redirect_url:
         return redirect(redirect_url)
@@ -45,7 +45,7 @@ def mark_as_read(request, slug):
 
     redirect_url = request.GET.get('next')
 
-    messages.add_message(request, messages.SUCCESS, f'通知{notification}标为已读')
+
 
     if redirect_url:
         return redirect(redirect_url)

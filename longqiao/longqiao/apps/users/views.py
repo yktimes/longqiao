@@ -14,7 +14,7 @@ from rest_framework_jwt.settings import api_settings
 from rest_framework.permissions import IsAuthenticated
 from django_redis import get_redis_connection
 
-from .serializers import UserSerializer, SiteUserSerializer
+from .serializers import UserSerializer, SiteUserSerializer,PostUserSerializer
 from . import constants
 from .oauth import Spider
 from .models import User, FriendShip
@@ -25,7 +25,7 @@ from world.models import WorldCircle
 from world.serializers import WorldSerializer, MyWorldSerializer
 from .utils import howLongDays
 from fdfs_client.client import Fdfs_client
-
+from celery_tasks.course.tasks import send_verify_email
 client = Fdfs_client(constants.FDFS)
 
 
@@ -505,6 +505,19 @@ class MyDynamicVIew(ListAPIView):
 
 
 
+    def list(self, request, *args, **kwargs):
+
+        results = super().list(request, *args, **kwargs)
+        user = PostUserSerializer(User.objects.get(pk=self.kwargs["pk"]),context={'request': request})
+
+        return Response({'user':user.data,'results':results.data})
+
+
+
+
+
+
+
 
 
 class MySiteView(APIView):
@@ -562,3 +575,41 @@ class MySiteView(APIView):
         #                  "fd_count": fd_count, "fd": fd,
         #                  "fr_count": fr_count, "fr": fr,
         #                 "days":str("陪伴 ")+str(days)})
+
+# from django.core.mail import send_mail
+# from django.conf import settings
+# def send_verify_email1(info, feedback):
+#             """
+#             发送验证邮箱
+#             :param to_email: 收件人邮箱
+#
+#             :return: None
+#             """
+#             subject = "用户反馈"
+#             html_message = '<p>{}用户</p>' \
+#                            '<p>联系方式为{}</p>' \
+#                            '<p>反馈内容为：{}</p>'.format("111", info, feedback)
+#             print(html_message)
+#             s = send_mail(subject, "", settings.EMAIL_FROM, ["yktimes@163.com"], html_message=html_message)
+#             print(s)
+
+class  FeedView(APIView):
+
+
+    # permission_classes = [IsAuthenticated,]
+
+    def post(self,request):
+
+        user= request.user.username
+        contact = request.data.get('contact')
+        feedback = request.data.get('feedback')
+        print(contact,feedback)
+        if not all([contact,feedback]):
+            return Response({"message": "error"}, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+
+            # 发送异步邮箱
+            send_verify_email.delay(user,contact,feedback)
+
+            return Response({"message": "ok"}, status=status.HTTP_200_OK)

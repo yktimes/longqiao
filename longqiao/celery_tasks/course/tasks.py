@@ -7,6 +7,24 @@ logger = logging.getLogger("django")
 
 from django_redis import get_redis_connection
 import json
+from django.core.mail import send_mail
+from django.conf import settings
+
+@celery_app.task(name='send_verify_email')
+def send_verify_email(user,info,feedback):
+    """
+    发送验证邮箱
+    :param to_email: 收件人邮箱
+
+    :return: None
+    """
+    subject = "用户反馈"
+    html_message = '<p>{}用户</p>' \
+                   '<p>联系方式为{}</p>' \
+                   '<p>反馈内容为：{}</p>'.format(user,info,feedback)
+    send_mail(subject, "", settings.EMAIL_FROM, [settings.TO_EMAIL_AA], html_message=html_message)
+
+
 
 @celery_app.task(name='getCourse')
 def getCourse(text):
